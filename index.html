@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#C41E3A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tennis Log">
+  <title>Tennis Log</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #C41E3A;
+      --red-dark: #a0172e;
+      --bg: #f5f5f0;
+      --bg-card: #ffffff;
+      --bg-surface: #f0ede8;
+      --bg-input: #ffffff;
+      --text: #1a1a1a;
+      --text-muted: #666660;
+      --text-hint: #999990;
+      --border: rgba(0,0,0,0.12);
+      --border-md: rgba(0,0,0,0.22);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141414;
+        --bg-card: #1e1e1e;
+        --bg-surface: #252525;
+        --bg-input: #2a2a2a;
+        --text: #f0f0f0;
+        --text-muted: #aaaaaa;
+        --text-hint: #666666;
+        --border: rgba(255,255,255,0.10);
+        --border-md: rgba(255,255,255,0.20);
+        --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* LOGIN */
+    #login-screen {
+      min-height: 100vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    #login-screen.active { display: flex; }
+    .login-box {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border);
+      padding: 2rem 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--red);
+      margin-bottom: 0.25rem;
+    }
+    .logo-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* NAV TABS */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 1.25rem;
+    }
+    .tab-nav button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 400;
+    }
+    .tab-nav button.active {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 0.5px solid var(--border);
+      font-weight: 500;
+    }
+
+    /* FORM ELEMENTS */
+    label { font-size: 13px; color: var(--text-muted); display: block; margin-top: 12px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 0.5px solid var(--border-md);
+      border-radius: var(--radius-sm);
+      background: var(--bg-input);
+      color: var(--text);
+      font-size: 15px;
+      margin-top: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--red); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border: 0.5px solid var(--border-md);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--bg-surface); }
+    .btn:active { transform: scale(0.98); }
+    .btn.primary { background: var(--red); border-color: var(--red); color: #fff; font-weight: 500; }
+    .btn.primary:hover { background: var(--red-dark); }
+    .btn.sm { padding: 6px 12px; font-size: 13px; }
+    .btn.icon { padding: 8px; }
+    .btn-full { width: 100%; justify-content: center; margin-top: 16px; }
+
+    .err { color: #e24b4a; font-size: 12px; margin-top: 6px; min-height: 16px; }
+
+    /* APP LAYOUT */
+    #app-screen { min-height: 100vh; display: none; flex-direction: column; }
+    #app-screen.active { display: flex; }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border-bottom: 0.5px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .app-logo { font-size: 17px; font-weight: 600; color: var(--red); display: flex; align-items: center; gap: 8px; }
+    .user-chip { display: flex; align-items: center; gap: 8px; }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--red); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; flex-shrink: 0;
+    }
+    .user-name { font-size: 13px; color: var(--text-muted); }
+
+    .main-nav {
+      display: flex;
+      background: var(--bg-card);
+      border-top: 0.5px solid var(--border);
+      position: sticky;
+      bottom: 0;
+      z-index: 50;
+    }
+    .main-nav button {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 4px 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-hint);
+      font-size: 11px;
+      cursor: pointer;
+      transition: color 0.15s;
+      border-top: 2px solid transparent;
+    }
+    .main-nav button i { font-size: 22px; }
+    .main-nav button.active { color: var(--red); border-top-color: var(--red); }
+
+    .app-content { flex: 1; padding: 1rem; max-width: 700px; width: 100%; margin: 0 auto; }
+
+    .tabs-content { display: none; }
+    .tabs-content.active { display: block; }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-hint);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin: 1rem 0 8px;
+    }
+
+    /* SCOREBOARD */
+    .scoreboard {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: #111827;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      overflow-x: auto;
+    }
+    .sb-header {
+      display: grid;
+      grid-template-columns: 1fr 44px 44px 44px 36px;
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+    .sb-header span { font-size: 11px; color: #6b7280; text-align: center; }
+    .sb-row {
+      display: grid;
+      grid-template-columns: 1fr 44px 44px 44px 36px;
+      gap: 2px;
+      align-items: center;
+      padding: 7px 0;
+      border-top: 1px solid #1f2937;
+    }
+    .sb-name { font-size: 13px; font-weight: 500; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-cell { text-align: center; font-size: 18px; font-weight: 500; color: #9ca3af; position: relative; }
+    .sb-cell.won { color: #f9fafb; }
+    .sb-tb { font-size: 10px; vertical-align: super; color: #6b7280; margin-left: 1px; }
+    .winner-dot { display: inline-block; width: 6px; height: 6px; background: #4ade80; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+    .win-check { color: #4ade80; font-size: 14px; text-align: center; }
+
+    /* MATCH CARD */
+    .match-card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .match-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .badge-singles { background: #dbeafe; color: #1e40af; }
+    .badge-doubles { background: #fef3c7; color: #92400e; }
+    .badge-win { background: #dcfce7; color: #166534; }
+    .badge-loss { background: #fee2e2; color: #991b1b; }
+    @media (prefers-color-scheme: dark) {
+      .badge-singles { background: #1e3a5f; color: #93c5fd; }
+      .badge-doubles { background: #3f2e00; color: #fcd34d; }
+      .badge-win { background: #14532d; color: #86efac; }
+      .badge-loss { background: #450a0a; color: #fca5a5; }
+    }
+
+    /* FILTERS */
+    .filters-wrap {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    @media (min-width: 500px) {
+      .filters-grid { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .filters-grid label { margin-top: 0; }
+    .filters-grid input, .filters-grid select { font-size: 13px; padding: 7px 10px; }
+    .filters-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-count { font-size: 12px; color: var(--text-muted); }
+
+    /* STATS */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+    .stat-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-num { font-size: 32px; font-weight: 600; }
+    .stat-lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .wl-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+    .wl-bar .w { background: #4ade80; }
+    .wl-bar .l { background: #f87171; }
+    .rival-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .rival-row:last-child { border-bottom: none; }
+    .rival-wl { font-size: 15px; font-weight: 500; }
+
+    /* FORM */
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .score-grid {
+      display: grid;
+      grid-template-columns: 52px 1fr 1fr 56px;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .score-grid label { margin-top: 0; }
+    .score-grid input { text-align: center; padding: 8px 4px; font-size: 15px; }
+    .score-hdr {
+      display: grid;
+      grid-template-columns: 52px 1fr 1fr 56px;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .score-hdr span { font-size: 11px; color: var(--text-hint); text-align: center; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.25s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 200;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* EMPTY */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-hint);
+    }
+    .empty i { font-size: 40px; display: block; margin-bottom: 12px; opacity: 0.4; }
+    .empty p { font-size: 14px; }
+
+    /* STATS HEADER */
+    .stats-header {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .stats-header select { flex: 1; min-width: 180px; margin-top: 0; font-size: 14px; }
+
+    @media (min-width: 700px) {
+      .app-header { padding: 14px 24px; }
+      .app-content { padding: 1.5rem; }
+      .main-nav button { flex-direction: row; font-size: 14px; gap: 8px; padding: 14px 20px; }
+      .main-nav button i { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen">
+  <div class="login-box">
+    <div class="logo">🎾 Tennis Log</div>
+    <p class="logo-sub">Registrá y consultá tus partidos</p>
+    <div id="auth-tabs" class="tab-nav">
+      <button class="active" onclick="switchAuth('login')">Iniciar sesión</button>
+      <button onclick="switchAuth('register')">Registrarse</button>
+    </div>
+    <div id="auth-login">
+      <label>Usuario<input id="l-user" type="text" autocomplete="username" placeholder="tu usuario"></label>
+      <label>Contraseña<input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></label>
+      <div id="l-err" class="err"></div>
+      <button class="btn primary btn-full" onclick="doLogin()">
+        <i class="ti ti-login"></i> Ingresar
+      </button>
+    </div>
+    <div id="auth-register" style="display:none">
+      <label>Nombre completo<input id="r-name" type="text" autocomplete="name" placeholder="Juan Pérez"></label>
+      <label>Usuario (sin espacios)<input id="r-user" type="text" autocomplete="username" placeholder="juanperez"></label>
+      <label>Contraseña<input id="r-pass" type="password" autocomplete="new-password" placeholder="mínimo 4 caracteres"></label>
+      <div id="r-err" class="err"></div>
+      <button class="btn primary btn-full" onclick="doRegister()">
+        <i class="ti ti-user-plus"></i> Crear cuenta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen" class="screen">
+  <header class="app-header">
+    <div class="app-logo">🎾 Tennis Log</div>
+    <div class="user-chip">
+      <div class="avatar" id="user-avatar">JF</div>
+      <span class="user-name" id="user-label"></span>
+      <button class="btn sm icon" onclick="doLogout()" title="Cerrar sesión">
+        <i class="ti ti-logout"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-content">
+    <!-- HISTORIAL -->
+    <div id="tab-history" class="tabs-content active">
+      <div class="filters-wrap">
+        <div class="filters-grid">
+          <div>
+            <label>Desde<input type="date" id="f-from" onchange="applyFilters()"></label>
+          </div>
+          <div>
+            <label>Hasta<input type="date" id="f-to" onchange="applyFilters()"></label>
+          </div>
+          <div>
+            <label>Jugador<input type="text" id="f-player" placeholder="Buscar..." oninput="applyFilters()"></label>
+          </div>
+          <div>
+            <label>Modalidad
+              <select id="f-mode-filter" onchange="applyFilters()">
+                <option value="">Todas</option>
+                <option value="singles">Singles</option>
+                <option value="doubles">Dobles</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>Resultado
+              <select id="f-result-filter" onchange="applyFilters()">
+                <option value="">Todos</option>
+                <option value="W">Victoria</option>
+                <option value="L">Derrota</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="filters-actions">
+          <span id="filter-count" class="filter-count"></span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm" onclick="clearFilters()"><i class="ti ti-x"></i> Limpiar</button>
+            <button class="btn sm" onclick="exportCSV()"><i class="ti ti-download"></i> Exportar CSV</button>
+          </div>
+        </div>
+      </div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- STATS -->
+    <div id="tab-stats" class="tabs-content">
+      <div class="stats-header">
+        <div style="font-size:13px;color:var(--text-muted);align-self:center;white-space:nowrap">Ver stats de:</div>
+        <select id="stats-player-filter" onchange="loadStats()"></select>
+        <button class="btn sm" onclick="exportStatsCSV()"><i class="ti ti-download"></i> Exportar</button>
+      </div>
+      <div class="stat-grid" id="stat-summary"></div>
+      <div class="section-title">Récord por rival</div>
+      <div class="card" style="padding:0 1.25rem" id="rivals-list"></div>
+    </div>
+
+    <!-- NUEVO PARTIDO -->
+    <div id="tab-new" class="tabs-content">
+      <div class="card">
+        <div class="section-title">Datos del partido</div>
+        <div class="row2">
+          <div><label>Fecha<input type="date" id="n-date"></label></div>
+          <div>
+            <label>Modalidad
+              <select id="n-mode" onchange="updatePlayers()">
+                <option value="singles">Singles</option>
+                <option value="doubles">Dobles</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <label>Lugar / Club<input id="n-place" type="text" placeholder="Club de Tenis..."></label>
+
+        <div class="section-title">Jugadores</div>
+        <div class="row2">
+          <div><label>Tu equipo — J1<input id="p-t1" type="text" placeholder="Vos"></label></div>
+          <div id="p-t2-wrap" style="display:none"><label>Tu equipo — J2<input id="p-t2" type="text" placeholder="Compañero"></label></div>
+        </div>
+        <div class="row2">
+          <div><label>Rival — J1<input id="p-r1" type="text" placeholder="Rival"></label></div>
+          <div id="p-r2-wrap" style="display:none"><label>Rival — J2<input id="p-r2" type="text" placeholder="Rival 2"></label></div>
+        </div>
+
+        <div class="section-title">Score</div>
+        <p style="font-size:12px;color:var(--text-hint);margin-bottom:8px">TB = puntaje del perdedor en tie-break</p>
+        <div class="score-hdr">
+          <span></span>
+          <span>Tu equipo</span>
+          <span>Rivales</span>
+          <span>TB</span>
+        </div>
+        <div class="score-grid">
+          <span style="font-size:13px;color:var(--text-muted)">Set 1</span>
+          <input id="s1-t" type="number" min="0" max="7" placeholder="0">
+          <input id="s1-r" type="number" min="0" max="7" placeholder="0">
+          <input id="s1-tb" type="number" min="0" max="13" placeholder="—">
+        </div>
+        <div class="score-grid">
+          <span style="font-size:13px;color:var(--text-muted)">Set 2</span>
+          <input id="s2-t" type="number" min="0" max="7" placeholder="0">
+          <input id="s2-r" type="number" min="0" max="7" placeholder="0">
+          <input id="s2-tb" type="number" min="0" max="13" placeholder="—">
+        </div>
+        <div class="score-grid">
+          <span style="font-size:13px;color:var(--text-muted)">Set 3</span>
+          <input id="s3-t" type="number" min="0" max="7" placeholder="—">
+          <input id="s3-r" type="number" min="0" max="7" placeholder="—">
+          <input id="s3-tb" type="number" min="0" max="13" placeholder="—">
+        </div>
+        <div id="f-err" class="err"></div>
+        <button class="btn primary btn-full" onclick="saveMatch()">
+          <i class="ti ti-device-floppy"></i> Guardar partido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="main-nav">
+    <button class="active" onclick="switchTab('history')" id="nav-history">
+      <i class="ti ti-list"></i><span>Historial</span>
+    </button>
+    <button onclick="switchTab('stats')" id="nav-stats">
+      <i class="ti ti-chart-bar"></i><span>Stats</span>
+    </button>
+    <button onclick="switchTab('new')" id="nav-new">
+      <i class="ti ti-circle-plus"></i><span>Nuevo</span>
+    </button>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const DB_KEY_USERS = 'tl_users_v1';
+const DB_KEY_MATCHES = 'tl_matches_v1';
+let currentUser = null;
+let allMatches = [];
+let filteredMatches = [];
+
+// --- STORAGE (localStorage para GitHub Pages) ---
+function dbGet(key) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+function dbSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch(e) { return false; }
+}
+function getUsers() { return dbGet(DB_KEY_USERS) || {}; }
+function saveUsers(u) { dbSet(DB_KEY_USERS, u); }
+function getMatches() { return dbGet(DB_KEY_MATCHES) || []; }
+function saveMatches(m) { dbSet(DB_KEY_MATCHES, m); }
+
+// --- AUTH ---
+function switchAuth(tab) {
+  document.getElementById('auth-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('auth-register').style.display = tab === 'register' ? 'block' : 'none';
+  const btns = document.querySelectorAll('#auth-tabs button');
+  btns[0].classList.toggle('active', tab === 'login');
+  btns[1].classList.toggle('active', tab === 'register');
+}
+
+function doLogin() {
+  const u = document.getElementById('l-user').value.trim().toLowerCase();
+  const p = document.getElementById('l-pass').value;
+  const err = document.getElementById('l-err');
+  if (!u || !p) { err.textContent = 'Completá usuario y contraseña'; return; }
+  const users = getUsers();
+  if (!users[u] || users[u].pass !== btoa(p)) { err.textContent = 'Usuario o contraseña incorrectos'; return; }
+  err.textContent = '';
+  currentUser = { username: u, name: users[u].name };
+  initApp();
+}
+
+function doRegister() {
+  const name = document.getElementById('r-name').value.trim();
+  const u = document.getElementById('r-user').value.trim().toLowerCase().replace(/\s/g, '');
+  const p = document.getElementById('r-pass').value;
+  const err = document.getElementById('r-err');
+  if (!name || !u || !p) { err.textContent = 'Completá todos los campos'; return; }
+  if (p.length < 4) { err.textContent = 'La contraseña debe tener al menos 4 caracteres'; return; }
+  const users = getUsers();
+  if (users[u]) { err.textContent = 'El usuario ya existe, elegí otro'; return; }
+  users[u] = { name, pass: btoa(p) };
+  saveUsers(users);
+  err.textContent = '';
+  currentUser = { username: u, name };
+  initApp();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('login-screen').classList.add('active');
+  document.getElementById('l-user').value = '';
+  document.getElementById('l-pass').value = '';
+  document.getElementById('l-err').textContent = '';
+}
+
+// --- APP INIT ---
+function initApp() {
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+  const initials = currentUser.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-label').textContent = currentUser.name;
+  document.getElementById('n-date').valueAsDate = new Date();
+  document.getElementById('p-t1').value = currentUser.name;
+  allMatches = getMatches();
+  filteredMatches = [...allMatches];
+  populateStatsFilter();
+  renderHistory();
+  loadStats();
+  switchTab('history');
+}
+
+// --- TABS ---
+function switchTab(tab) {
+  ['history', 'stats', 'new'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('nav-' + t).classList.toggle('active', t === tab);
+  });
+}
+
+// --- FORM ---
+function updatePlayers() {
+  const d = document.getElementById('n-mode').value === 'doubles';
+  document.getElementById('p-t2-wrap').style.display = d ? 'block' : 'none';
+  document.getElementById('p-r2-wrap').style.display = d ? 'block' : 'none';
+}
+
+function gv(id) { return (document.getElementById(id).value || '').trim(); }
+function gn(id) { const v = document.getElementById(id).value; return v === '' ? null : parseInt(v); }
+
+function determineWinner(sets) {
+  let tw = 0, rw = 0;
+  sets.forEach(s => { if (s.t !== null && s.r !== null) { if (s.t > s.r) tw++; else if (s.r > s.t) rw++; } });
+  return tw > rw ? 'team' : 'rivals';
+}
+
+function saveMatch() {
+  const err = document.getElementById('f-err');
+  const mode = gv('n-mode');
+  const isD = mode === 'doubles';
+  const t1 = gv('p-t1'), r1 = gv('p-r1'), t2 = gv('p-t2'), r2 = gv('p-r2');
+  const date = gv('n-date'), place = gv('n-place');
+  if (!date) { err.textContent = 'Ingresá la fecha'; return; }
+  if (!t1 || !r1) { err.textContent = 'Ingresá los jugadores'; return; }
+  if (isD && (!t2 || !r2)) { err.textContent = 'Ingresá los 4 jugadores para dobles'; return; }
+  const s1t = gn('s1-t'), s1r = gn('s1-r');
+  if (s1t === null || s1r === null) { err.textContent = 'El Set 1 es obligatorio'; return; }
+  const sets = [{ t: s1t, r: s1r, tb: gn('s1-tb') }];
+  const s2t = gn('s2-t'), s2r = gn('s2-r');
+  if (s2t !== null && s2r !== null) sets.push({ t: s2t, r: s2r, tb: gn('s2-tb') });
+  const s3t = gn('s3-t'), s3r = gn('s3-r');
+  if (s3t !== null && s3r !== null) sets.push({ t: s3t, r: s3r, tb: gn('s3-tb') });
+  err.textContent = '';
+  const match = {
+    id: Date.now(), date, place, mode,
+    players: { t1, t2: isD ? t2 : '', r1, r2: isD ? r2 : '' },
+    sets, winner: determineWinner(sets),
+    addedBy: currentUser.username, addedByName: currentUser.name
+  };
+  allMatches.unshift(match);
+  saveMatches(allMatches);
+  ['s1-t','s1-r','s1-tb','s2-t','s2-r','s2-tb','s3-t','s3-r','s3-tb','n-place','p-r1','p-r2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('n-date').valueAsDate = new Date();
+  document.getElementById('p-t1').value = currentUser.name;
+  applyFilters();
+  populateStatsFilter();
+  switchTab('history');
+  showToast('Partido guardado ✓');
+}
+
+// --- SCOREBOARD ---
+function renderScoreboard(match) {
+  const { players, sets, winner, mode } = match;
+  const tName = mode === 'doubles' ? `${players.t1} / ${players.t2}` : players.t1;
+  const rName = mode === 'doubles' ? `${players.r1} / ${players.r2}` : players.r1;
+  const tWon = winner === 'team';
+  let tCells = '', rCells = '';
+  for (let i = 0; i < 3; i++) {
+    const s = sets[i];
+    if (s) {
+      const tw = s.t > s.r;
+      const tbT = !tw && s.tb !== null ? `<span class="sb-tb">${s.tb}</span>` : '';
+      const tbR = tw && s.tb !== null ? `<span class="sb-tb">${s.tb}</span>` : '';
+      tCells += `<div class="sb-cell ${tw ? 'won' : ''}">${s.t}${tbT}</div>`;
+      rCells += `<div class="sb-cell ${!tw ? 'won' : ''}">${s.r}${tbR}</div>`;
+    } else {
+      tCells += `<div class="sb-cell" style="color:#374151">—</div>`;
+      rCells += `<div class="sb-cell" style="color:#374151">—</div>`;
+    }
+  }
+  return `<div class="scoreboard">
+    <div class="sb-header"><span></span><span>S1</span><span>S2</span><span>S3</span><span></span></div>
+    <div class="sb-row">
+      <div class="sb-name">${tWon ? '<span class="winner-dot"></span>' : ''}${tName}</div>
+      ${tCells}
+      <div class="win-check">${tWon ? '✓' : ''}</div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-name">${!tWon ? '<span class="winner-dot"></span>' : ''}${rName}</div>
+      ${rCells}
+      <div class="win-check">${!tWon ? '✓' : ''}</div>
+    </div>
+  </div>`;
+}
+
+// --- FILTERS ---
+function applyFilters() {
+  const from = document.getElementById('f-from').value;
+  const to = document.getElementById('f-to').value;
+  const player = document.getElementById('f-player').value.trim().toLowerCase();
+  const mode = document.getElementById('f-mode-filter').value;
+  const result = document.getElementById('f-result-filter').value;
+  filteredMatches = allMatches.filter(m => {
+    if (from && m.date < from) return false;
+    if (to && m.date > to) return false;
+    if (mode && m.mode !== mode) return false;
+    if (player) {
+      const names = [m.players.t1, m.players.t2, m.players.r1, m.players.r2].filter(Boolean).map(n => n.toLowerCase());
+      if (!names.some(n => n.includes(player))) return false;
+    }
+    if (result) {
+      if (getResultFor(m, currentUser.name) !== result) return false;
+    }
+    return true;
+  });
+  renderHistory();
+}
+
+function clearFilters() {
+  ['f-from','f-to','f-player'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-mode-filter').value = '';
+  document.getElementById('f-result-filter').value = '';
+  filteredMatches = [...allMatches];
+  renderHistory();
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  const fc = document.getElementById('filter-count');
+  const isFiltered = filteredMatches.length !== allMatches.length;
+  fc.textContent = isFiltered
+    ? `${filteredMatches.length} de ${allMatches.length} partidos`
+    : `${allMatches.length} partido${allMatches.length !== 1 ? 's' : ''}`;
+  if (filteredMatches.length === 0) {
+    el.innerHTML = `<div class="empty"><i class="ti ti-search"></i><p>${allMatches.length === 0 ? 'Todavía no hay partidos cargados' : 'No hay partidos con esos filtros'}</p></div>`;
+    return;
+  }
+  el.innerHTML = filteredMatches.map(m => {
+    const d = new Date(m.date + 'T12:00:00');
+    const df = d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+    const res = getResultFor(m, currentUser.name);
+    return `<div class="match-card">
+      <div class="match-meta">
+        <span><i class="ti ti-calendar" style="font-size:13px"></i> ${df}</span>
+        ${m.place ? `<span><i class="ti ti-map-pin" style="font-size:13px"></i> ${m.place}</span>` : ''}
+        <span class="badge badge-${m.mode}">${m.mode === 'doubles' ? 'Dobles' : 'Singles'}</span>
+        <span class="badge badge-${res === 'W' ? 'win' : 'loss'}">${res === 'W' ? 'Victoria' : 'Derrota'}</span>
+        <span style="font-size:11px;color:var(--text-hint)">por ${m.addedByName}</span>
+      </div>
+      ${renderScoreboard(m)}
+    </div>`;
+  }).join('');
+}
+
+// --- STATS ---
+function playerInMatch(match, name) {
+  const n = name.toLowerCase();
+  return [match.players.t1, match.players.t2, match.players.r1, match.players.r2].some(p => p && p.toLowerCase() === n);
+}
+
+function getResultFor(match, name) {
+  const n = name.toLowerCase();
+  const inTeam = [match.players.t1, match.players.t2].some(p => p && p.toLowerCase() === n);
+  return (inTeam && match.winner === 'team') || (!inTeam && match.winner === 'rivals') ? 'W' : 'L';
+}
+
+function getOpponentsFor(match, name) {
+  const n = name.toLowerCase();
+  const inTeam = [match.players.t1, match.players.t2].some(p => p && p.toLowerCase() === n);
+  return inTeam
+    ? [match.players.r1, match.players.r2].filter(Boolean)
+    : [match.players.t1, match.players.t2].filter(Boolean);
+}
+
+function getAllPlayers() {
+  const set = new Set();
+  allMatches.forEach(m => [m.players.t1, m.players.t2, m.players.r1, m.players.r2].filter(Boolean).forEach(p => set.add(p)));
+  return [...set].sort();
+}
+
+function populateStatsFilter() {
+  const sel = document.getElementById('stats-player-filter');
+  const cur = sel.value || '__me__';
+  const others = getAllPlayers().filter(p => p.toLowerCase() !== currentUser.name.toLowerCase());
+  sel.innerHTML = `<option value="__me__">Mis estadísticas (${currentUser.name})</option>` +
+    others.map(p => `<option value="${p}">${p}</option>`).join('');
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
+function loadStats() {
+  const sel = document.getElementById('stats-player-filter');
+  const isMe = !sel || sel.value === '__me__';
+  const playerName = isMe ? currentUser.name : sel.value;
+  const myMatches = allMatches.filter(m => playerInMatch(m, playerName));
+  const wins = myMatches.filter(m => getResultFor(m, playerName) === 'W').length;
+  const losses = myMatches.length - wins;
+  const pct = myMatches.length > 0 ? Math.round(wins / myMatches.length * 100) : 0;
+  const wBar = pct;
+  document.getElementById('stat-summary').innerHTML = `
+    <div class="stat-card"><div class="stat-num" style="color:#16a34a">${wins}</div><div class="stat-lbl">Victorias</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#dc2626">${losses}</div><div class="stat-lbl">Derrotas</div></div>
+    <div class="stat-card" style="grid-column:span 2">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <span style="font-size:13px;color:var(--text-muted)">${playerName}</span>
+        <span style="font-size:22px;font-weight:600">${pct}%</span>
+      </div>
+      <div class="wl-bar"><div class="w" style="width:${wBar}%"></div><div class="l" style="width:${100 - wBar}%"></div></div>
+      <div style="font-size:12px;color:var(--text-hint)">${myMatches.length} partido${myMatches.length !== 1 ? 's' : ''} en total</div>
+    </div>`;
+  const rivalMap = {};
+  myMatches.forEach(m => {
+    const res = getResultFor(m, playerName);
+    getOpponentsFor(m, playerName).forEach(opp => {
+      if (!opp) return;
+      const k = opp.toLowerCase();
+      if (!rivalMap[k]) rivalMap[k] = { name: opp, w: 0, l: 0 };
+      if (res === 'W') rivalMap[k].w++; else rivalMap[k].l++;
+    });
+  });
+  const rivals = Object.values(rivalMap).sort((a, b) => (b.w + b.l) - (a.w + a.l));
+  const rivalEl = document.getElementById('rivals-list');
+  if (rivals.length === 0) { rivalEl.innerHTML = '<div class="empty" style="padding:1.5rem"><p>Sin rivalidades registradas</p></div>'; return; }
+  rivalEl.innerHTML = rivals.map(r => {
+    const tot = r.w + r.l;
+    const wp = Math.round(r.w / tot * 100);
+    return `<div class="rival-row">
+      <div>
+        <div style="font-weight:500">${r.name}</div>
+        <div style="font-size:12px;color:var(--text-hint)">${tot} partido${tot !== 1 ? 's' : ''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rival-wl"><span style="color:#16a34a">${r.w}V</span> <span style="color:var(--text-hint)">/</span> <span style="color:#dc2626">${r.l}D</span></div>
+        <div style="font-size:12px;color:var(--text-hint)">${wp}% victorias</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// --- CSV ---
+function scoreStr(match) {
+  return match.sets.map(s => s.tb !== null ? `${s.t}-${s.r}(${s.tb})` : `${s.t}-${s.r}`).join(' ');
+}
+
+function downloadCSV(rows, filename) {
+  const bom = '\uFEFF';
+  const csv = bom + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCSV() {
+  const rows = [['Fecha','Lugar','Modalidad','Equipo A J1','Equipo A J2','Equipo B J1','Equipo B J2','Score','Ganador','Cargado por']];
+  filteredMatches.forEach(m => {
+    const w = m.winner === 'team' ? m.players.t1 : m.players.r1;
+    rows.push([m.date, m.place || '', m.mode, m.players.t1, m.players.t2 || '', m.players.r1, m.players.r2 || '', scoreStr(m), w, m.addedByName]);
+  });
+  downloadCSV(rows, 'tennis_historial.csv');
+  showToast('CSV exportado ✓');
+}
+
+function exportStatsCSV() {
+  const sel = document.getElementById('stats-player-filter');
+  const playerName = (!sel || sel.value === '__me__') ? currentUser.name : sel.value;
+  const myMatches = allMatches.filter(m => playerInMatch(m, playerName));
+  const rows = [['Fecha','Lugar','Modalidad','Rival(es)','Score','Resultado']];
+  myMatches.forEach(m => {
+    const res = getResultFor(m, playerName);
+    rows.push([m.date, m.place || '', m.mode, getOpponentsFor(m, playerName).join(' / '), scoreStr(m), res === 'W' ? 'Victoria' : 'Derrota']);
+  });
+  downloadCSV(rows, `tennis_stats_${playerName.replace(/\s/g, '_')}.csv`);
+  showToast('Stats exportadas ✓');
+}
+
+// --- TOAST ---
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// --- INIT ---
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('auth-login').style.display !== 'none') doLogin();
+    else if (document.getElementById('auth-register').style.display !== 'none') doRegister();
+  }
+});
+</script>
+</body>
+</html>
