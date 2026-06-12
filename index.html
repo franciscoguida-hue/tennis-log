@@ -430,7 +430,7 @@
     <div id="auth-login">
       <label>Usuario<input id="l-user" type="text" autocomplete="username" placeholder="tu usuario"></label>
       <label>Contraseña<input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></label>
-      <div id="l-err" class="err"></div>
+      <div id="l-err" class="err">Conectando…</div>
       <button class="btn primary btn-full" onclick="doLogin()">
         <i class="ti ti-login"></i> Ingresar
       </button>
@@ -599,17 +599,47 @@ let currentUser = null;
 let allMatches = [];
 let filteredMatches = [];
 
-// --- STORAGE (localStorage para GitHub Pages) ---
-function dbGet(key) {
+// --- STORAGE (Firestore: datos compartidos entre dispositivos) ---
+let _users = {};
+let _matchesCache = [];
+let _cloudUsersReady = false, _cloudMatchesReady = false, _migrated = false;
+
+function dbGetLocal(key) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
 }
-function dbSet(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch(e) { return false; }
-}
-function getUsers() { return dbGet(DB_KEY_USERS) || {}; }
-function saveUsers(u) { dbSet(DB_KEY_USERS, u); }
-function getMatches() { return dbGet(DB_KEY_MATCHES) || []; }
-function saveMatches(m) { dbSet(DB_KEY_MATCHES, m); }
+function getUsers() { return _users; }
+function saveUsers(u) { _users = u; window.__fbSave('users', u); }
+function getMatches() { return _matchesCache; }
+function saveMatches(m) { _matchesCache = m; window.__fbSave('matches', m); }
+function cloudReady() { return _cloudUsersReady && _cloudMatchesReady; }
+
+window.__applyCloud = function(kind, data) {
+  if (kind === 'users') { _users = data || {}; _cloudUsersReady = true; }
+  if (kind === 'matches') {
+    _matchesCache = data || [];
+    _cloudMatchesReady = true;
+    if (currentUser) {
+      allMatches = _matchesCache;
+      populateStatsFilter();
+      applyFilters();
+      loadStats();
+    }
+  }
+  if (cloudReady() && !_migrated) {
+    _migrated = true;
+    // migrar datos viejos de localStorage si la nube esta vacia
+    const lu = dbGetLocal(DB_KEY_USERS), lm = dbGetLocal(DB_KEY_MATCHES);
+    if (lu && Object.keys(_users).length === 0) saveUsers(lu);
+    if (lm && lm.length && _matchesCache.length === 0) saveMatches(lm);
+    const errEl = document.getElementById('l-err');
+    if (errEl && errEl.textContent.indexOf('Conectando') === 0) errEl.textContent = '';
+  }
+};
+window.__cloudError = function(e) {
+  console.error('Firestore:', e);
+  const errEl = document.getElementById('l-err');
+  if (errEl) errEl.textContent = 'No se pudo conectar a la base de datos';
+};
 
 // --- AUTH ---
 function switchAuth(tab) {
@@ -625,6 +655,7 @@ function doLogin() {
   const p = document.getElementById('l-pass').value;
   const err = document.getElementById('l-err');
   if (!u || !p) { err.textContent = 'Completá usuario y contraseña'; return; }
+  if (!cloudReady()) { err.textContent = 'Conectando con la base de datos…'; return; }
   const users = getUsers();
   if (!users[u] || users[u].pass !== btoa(p)) { err.textContent = 'Usuario o contraseña incorrectos'; return; }
   err.textContent = '';
@@ -639,6 +670,7 @@ function doRegister() {
   const err = document.getElementById('r-err');
   if (!name || !u || !p) { err.textContent = 'Completá todos los campos'; return; }
   if (p.length < 4) { err.textContent = 'La contraseña debe tener al menos 4 caracteres'; return; }
+  if (!cloudReady()) { err.textContent = 'Conectando con la base de datos…'; return; }
   const users = getUsers();
   if (users[u]) { err.textContent = 'El usuario ya existe, elegí otro'; return; }
   users[u] = { name, pass: btoa(p) };
@@ -963,6 +995,30 @@ document.addEventListener('keydown', e => {
     else if (document.getElementById('auth-register').style.display !== 'none') doRegister();
   }
 });
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyACBsti8iA9pZaBnm6EWYi39sLVKWBwp1s",
+  authDomain: "tennis-log-5354e.firebaseapp.com",
+  projectId: "tennis-log-5354e",
+  storageBucket: "tennis-log-5354e.firebasestorage.app",
+  messagingSenderId: "370632416736",
+  appId: "1:370632416736:web:801619bf6290f4c60adf85"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+window.__fbSave = (kind, data) => {
+  setDoc(doc(db, 'tennis-log', kind), { data }).catch(e => {
+    console.error('Firestore save:', e);
+    if (typeof showToast === 'function') showToast('⚠️ Error guardando en la nube');
+  });
+};
+onSnapshot(doc(db, 'tennis-log', 'users'), s => window.__applyCloud('users', s.exists() ? s.data().data : {}), window.__cloudError);
+onSnapshot(doc(db, 'tennis-log', 'matches'), s => window.__applyCloud('matches', s.exists() ? s.data().data : []), window.__cloudError);
 </script>
 </body>
 </html>

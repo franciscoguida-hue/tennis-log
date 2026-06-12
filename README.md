@@ -16,13 +16,13 @@ App web para registrar y consultar partidos de tenis. Accesible desde móvil y d
 
 ## 🚀 Uso
 
-La app está disponible en: **https://franciscoguida-ops.github.io/tennis-log**
+La app está disponible en: **https://franciscoguida-hue.github.io/tennis-log**
 
 No requiere instalación. Funciona en cualquier navegador moderno, móvil o desktop.
 
 ## 🔧 Datos
 
-Los datos se guardan en `localStorage` del navegador. Cada dispositivo/navegador tiene su propia base de datos. Para uso compartido entre dispositivos, abrir la app en el mismo navegador con la misma cuenta.
+Los datos se guardan en Firebase Firestore: usuarios y partidos se comparten entre todos los dispositivos en tiempo real.
 
 ## 📁 Estructura
 
