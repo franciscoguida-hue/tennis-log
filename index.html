@@ -341,10 +341,121 @@
     .main-nav button i { font-size: 20px; }
     .main-nav button.active { color: var(--orange); border-top-color: var(--orange); }
 
+    .main-nav button span { white-space: nowrap; }
+
     .app-content { flex: 1; padding: 1rem; max-width: 680px; width: 100%; margin: 0 auto; overflow: hidden; }
 
     .tabs-content { display: none; }
     .tabs-content.active { display: block; }
+
+    /* ============================================================
+       PLAYERS (gestión de nombres)
+    ============================================================ */
+    .player-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .player-row:last-child { border-bottom: none; }
+    .player-row .pr-name {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .player-row .pr-count {
+      font-size: 10px;
+      color: var(--stone);
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .pr-you {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--green);
+      color: var(--white);
+      padding: 2px 6px;
+      border-radius: 2px;
+      margin-left: 6px;
+      vertical-align: 1px;
+    }
+    .dup-card {
+      background: var(--orange-light);
+      border: 1px solid rgba(212,76,42,0.30);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .dup-card h4 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--orange-dark);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dup-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+    .dup-group {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+    .dup-variants { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .dup-variant {
+      font-size: 12px;
+      background: var(--cream-dark);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 3px 8px;
+    }
+    .dup-variant b { font-weight: 700; }
+
+    /* ============================================================
+       MODAL
+    ============================================================ */
+    .modal-back {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6,48,36,0.55);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+    .modal-back.show { display: flex; }
+    .modal {
+      background: var(--cream);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 380px;
+      overflow: hidden;
+    }
+    .modal-head {
+      background: var(--green);
+      padding: 14px 18px;
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .modal-body { padding: 1.25rem 1.25rem 1.5rem; }
+    .modal-body .hint { font-size: 12px; color: var(--text-muted); margin-top: 10px; line-height: 1.45; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-actions .btn { flex: 1; justify-content: center; }
 
     /* ============================================================
        CARDS
@@ -744,6 +855,19 @@
       <div id="history-list"></div>
     </div>
 
+    <!-- JUGADORES -->
+    <div id="tab-players" class="tabs-content">
+      <div id="dup-warning"></div>
+      <div class="card">
+        <div class="section-title">Jugadores registrados</div>
+        <div id="players-list"></div>
+      </div>
+      <p style="font-size:11px;color:var(--stone);text-align:center;line-height:1.5">
+        Al renombrar un jugador se actualizan todos sus partidos.<br>
+        Si el nombre nuevo ya existe, los dos se fusionan en uno.
+      </p>
+    </div>
+
     <!-- STATS -->
     <div id="tab-stats" class="tabs-content">
       <div class="stats-header">
@@ -775,12 +899,12 @@
 
         <div class="section-title">Jugadores</div>
         <div class="row2">
-          <div><label>Tu equipo — J1<input id="p-t1" type="text" placeholder="Vos"></label></div>
-          <div id="p-t2-wrap" style="display:none"><label>Tu equipo — J2<input id="p-t2" type="text" placeholder="Compañero"></label></div>
+          <div><label>Tu equipo — J1<input id="p-t1" type="text" placeholder="Vos" list="players-datalist" autocomplete="off"></label></div>
+          <div id="p-t2-wrap" style="display:none"><label>Tu equipo — J2<input id="p-t2" type="text" placeholder="Compañero" list="players-datalist" autocomplete="off"></label></div>
         </div>
         <div class="row2">
-          <div><label>Rival — J1<input id="p-r1" type="text" placeholder="Rival"></label></div>
-          <div id="p-r2-wrap" style="display:none"><label>Rival — J2<input id="p-r2" type="text" placeholder="Rival 2"></label></div>
+          <div><label>Rival — J1<input id="p-r1" type="text" placeholder="Rival" list="players-datalist" autocomplete="off"></label></div>
+          <div id="p-r2-wrap" style="display:none"><label>Rival — J2<input id="p-r2" type="text" placeholder="Rival 2" list="players-datalist" autocomplete="off"></label></div>
         </div>
 
         <div class="section-title">Score</div>
@@ -824,11 +948,34 @@
     <button onclick="switchTab('stats')" id="nav-stats">
       <i class="ti ti-chart-bar"></i><span>Stats</span>
     </button>
+    <button onclick="switchTab('players')" id="nav-players">
+      <i class="ti ti-users"></i><span>Jugadores</span>
+    </button>
     <button onclick="switchTab('new')" id="nav-new">
       <i class="ti ti-circle-plus"></i><span>Nuevo</span>
     </button>
   </nav>
 </div><!-- /app-screen -->
+
+<!-- MODAL RENOMBRAR -->
+<div id="rename-modal" class="modal-back">
+  <div class="modal">
+    <div class="modal-head">Renombrar jugador</div>
+    <div class="modal-body">
+      <label>Nombre
+        <input id="rn-input" type="text" list="players-datalist" autocomplete="off">
+      </label>
+      <div id="rn-hint" class="hint"></div>
+      <div id="rn-err" class="err"></div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeRename()">Cancelar</button>
+        <button class="btn primary" onclick="confirmRename()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<datalist id="players-datalist"></datalist>
 
 <div id="toast" class="toast"></div>
 
@@ -940,6 +1087,7 @@ window.__applyCloud = function(kind, data) {
       populateStatsFilter();
       applyFilters();
       loadStats();
+      renderPlayers();
     }
   }
   if (cloudReady() && !_migrated) {
@@ -1039,6 +1187,7 @@ function initApp() {
   populateStatsFilter();
   renderHistory();
   loadStats();
+  renderPlayers();
   switchTab('history');
 }
 
@@ -1046,11 +1195,12 @@ function initApp() {
    TABS
 ============================================================ */
 function switchTab(tab) {
-  ['history', 'stats', 'new'].forEach(t => {
+  ['history', 'stats', 'players', 'new'].forEach(t => {
     document.getElementById('tab-'  + t).classList.toggle('active', t === tab);
     document.getElementById('nav-'  + t).classList.toggle('active', t === tab);
   });
-  if (tab === 'stats') loadStats();
+  if (tab === 'stats')   loadStats();
+  if (tab === 'players') renderPlayers();
 }
 
 /* ============================================================
@@ -1078,7 +1228,9 @@ function saveMatch() {
   const err  = document.getElementById('f-err');
   const mode = gv('n-mode');
   const isD  = mode === 'doubles';
-  const t1 = gv('p-t1'), r1 = gv('p-r1'), t2 = gv('p-t2'), r2 = gv('p-r2');
+  /* si el nombre ya existe escrito de otra forma, uso el que ya está cargado */
+  const t1 = canonical(gv('p-t1')), r1 = canonical(gv('p-r1')),
+        t2 = canonical(gv('p-t2')), r2 = canonical(gv('p-r2'));
   const date = gv('n-date'), place = gv('n-place');
   if (!date)               { err.textContent = 'Ingresá la fecha'; return; }
   if (!t1 || !r1)          { err.textContent = 'Ingresá los jugadores'; return; }
@@ -1105,6 +1257,7 @@ function saveMatch() {
   document.getElementById('p-t1').value = currentUser.name;
   applyFilters();
   populateStatsFilter();
+  renderPlayers();
   switchTab('history');
   showToast('Partido guardado ✓');
 }
@@ -1114,8 +1267,8 @@ function saveMatch() {
 ============================================================ */
 function renderScoreboard(match) {
   const { players, sets, winner, mode, place } = match;
-  const tName = mode === 'doubles' ? `${players.t1} / ${players.t2}` : players.t1;
-  const rName = mode === 'doubles' ? `${players.r1} / ${players.r2}` : players.r1;
+  const tName = esc(mode === 'doubles' ? `${players.t1} / ${players.t2}` : players.t1);
+  const rName = esc(mode === 'doubles' ? `${players.r1} / ${players.r2}` : players.r1);
   const tWon  = winner === 'team';
   let tCells = '', rCells = '';
   for (let i = 0; i < 3; i++) {
@@ -1156,7 +1309,7 @@ function renderScoreboard(match) {
 function applyFilters() {
   const from   = document.getElementById('f-from').value;
   const to     = document.getElementById('f-to').value;
-  const player = document.getElementById('f-player').value.trim().toLowerCase();
+  const player = normName(document.getElementById('f-player').value);
   const mode   = document.getElementById('f-mode-filter').value;
   const result = document.getElementById('f-result-filter').value;
   filteredMatches = allMatches.filter(m => {
@@ -1164,8 +1317,7 @@ function applyFilters() {
     if (to   && m.date > to)   return false;
     if (mode && m.mode !== mode) return false;
     if (player) {
-      const names = [m.players.t1, m.players.t2, m.players.r1, m.players.r2]
-        .filter(Boolean).map(n => n.toLowerCase());
+      const names = matchPlayerList(m).map(normName);
       if (!names.some(n => n.includes(player))) return false;
     }
     if (result && getResultFor(m, currentUser.name) !== result) return false;
@@ -1205,7 +1357,7 @@ function renderHistory() {
         <span class="meta-text"><i class="ti ti-calendar" style="font-size:11px"></i>&nbsp;${df}</span>
         <span class="badge badge-${m.mode}">${m.mode === 'doubles' ? 'Dobles' : 'Singles'}</span>
         <span class="badge badge-${res === 'W' ? 'win' : 'loss'}">${res === 'W' ? 'Victoria' : 'Derrota'}</span>
-        <span style="font-size:10px;color:var(--stone);margin-left:auto">por ${m.addedByName}</span>
+        <span style="font-size:10px;color:var(--stone);margin-left:auto">por ${esc(m.addedByName)}</span>
       </div>
       <div class="match-card-body">${renderScoreboard(m)}</div>
     </div>`;
@@ -1215,36 +1367,90 @@ function renderHistory() {
 /* ============================================================
    STATS
 ============================================================ */
+/* Escapa texto para insertar en HTML de forma segura */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* Normaliza un nombre para comparar: sin tildes, minúsculas, sin espacios de más.
+   "Javier Martín  y Herrera" y "javier martin y herrera" → misma clave. */
+function normName(s) {
+  return (s || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')   // saca tildes/diacríticos
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function sameName(a, b) { return normName(a) === normName(b) && normName(a) !== ''; }
+
+function matchPlayerList(match) {
+  return [match.players.t1, match.players.t2, match.players.r1, match.players.r2].filter(Boolean);
+}
 function playerInMatch(match, name) {
-  const n = name.toLowerCase();
-  return [match.players.t1, match.players.t2, match.players.r1, match.players.r2]
-    .some(p => p && p.toLowerCase() === n);
+  return matchPlayerList(match).some(p => sameName(p, name));
 }
 function getResultFor(match, name) {
-  const n = name.toLowerCase();
-  const inTeam = [match.players.t1, match.players.t2].some(p => p && p.toLowerCase() === n);
+  const inTeam = [match.players.t1, match.players.t2].some(p => sameName(p, name));
   return (inTeam && match.winner === 'team') || (!inTeam && match.winner === 'rivals') ? 'W' : 'L';
 }
 function getOpponentsFor(match, name) {
-  const n = name.toLowerCase();
-  const inTeam = [match.players.t1, match.players.t2].some(p => p && p.toLowerCase() === n);
+  const inTeam = [match.players.t1, match.players.t2].some(p => sameName(p, name));
   return inTeam
     ? [match.players.r1, match.players.r2].filter(Boolean)
     : [match.players.t1, match.players.t2].filter(Boolean);
 }
-function getAllPlayers() {
-  const set = new Set();
-  allMatches.forEach(m =>
-    [m.players.t1, m.players.t2, m.players.r1, m.players.r2].filter(Boolean).forEach(p => set.add(p))
-  );
-  return [...set].sort();
+
+/* Agrupa los nombres por clave normalizada.
+   Devuelve [{ key, display, count, variants:[{name,count}] }] ordenado por nombre. */
+function getPlayerGroups() {
+  const groups = new Map();
+  allMatches.forEach(m => matchPlayerList(m).forEach(p => {
+    const k = normName(p);
+    if (!k) return;
+    if (!groups.has(k)) groups.set(k, { key: k, count: 0, variants: new Map() });
+    const g = groups.get(k);
+    g.count++;
+    g.variants.set(p, (g.variants.get(p) || 0) + 1);
+  }));
+  return [...groups.values()].map(g => {
+    const variants = [...g.variants.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) =>
+        b.count - a.count ||
+        variantScore(b.name) - variantScore(a.name) ||
+        a.name.localeCompare(b.name, 'es'));
+    return { key: g.key, display: variants[0].name, count: g.count, variants };
+  }).sort((a, b) => a.display.localeCompare(b.display, 'es'));
 }
+
+/* Ante un empate, elige la variante mejor escrita:
+   con tildes, con mayúsculas iniciales y sin espacios de más. */
+function variantScore(name) {
+  let s = 0;
+  if (/[\u0300-\u036f]/.test(name.normalize('NFD'))) s += 3;                       // tiene tildes
+  if (name.split(' ').filter(Boolean).every(w => /^[A-ZÁÉÍÓÚÑÜ]/.test(w))) s += 2;  // Mayúsculas Iniciales
+  if (/\s{2,}/.test(name) || name !== name.trim()) s -= 2;                 // espacios de más
+  return s;
+}
+function getAllPlayers() { return getPlayerGroups().map(g => g.display); }
+
+/* Devuelve el nombre "oficial" ya cargado que coincide con `name` (ignorando
+   tildes/mayúsculas). Si no existe, devuelve el nombre tal cual se escribió. */
+function canonical(name) {
+  if (!name) return name;
+  const g = getPlayerGroups().find(x => x.key === normName(name));
+  return g ? g.display : name;
+}
+
 function populateStatsFilter() {
   const sel = document.getElementById('stats-player-filter');
   const cur = sel.value || '__me__';
-  const others = getAllPlayers().filter(p => p.toLowerCase() !== currentUser.name.toLowerCase());
-  sel.innerHTML = `<option value="__me__">Mis stats (${currentUser.name})</option>`
-    + others.map(p => `<option value="${p}">${p}</option>`).join('');
+  const others = getAllPlayers().filter(p => !sameName(p, currentUser.name));
+  sel.innerHTML = `<option value="__me__">Mis stats (${esc(currentUser.name)})</option>`
+    + others.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
   if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
 }
 function loadStats() {
@@ -1266,7 +1472,7 @@ function loadStats() {
     </div>
     <div class="stat-card" style="grid-column:span 2">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-        <span style="font-size:11px;color:var(--stone);text-transform:uppercase;letter-spacing:0.8px;font-weight:700">${playerName}</span>
+        <span style="font-size:11px;color:var(--stone);text-transform:uppercase;letter-spacing:0.8px;font-weight:700">${esc(playerName)}</span>
         <span style="font-size:30px;font-weight:700">${pct}%</span>
       </div>
       <div class="wl-bar">
@@ -1283,7 +1489,7 @@ function loadStats() {
     const res = getResultFor(m, playerName);
     getOpponentsFor(m, playerName).forEach(opp => {
       if (!opp) return;
-      const k = opp.toLowerCase();
+      const k = normName(opp);
       if (!rivalMap[k]) rivalMap[k] = { name: opp, w: 0, l: 0 };
       if (res === 'W') rivalMap[k].w++; else rivalMap[k].l++;
     });
@@ -1299,7 +1505,7 @@ function loadStats() {
     const wp  = Math.round(r.w / tot * 100);
     return `<div class="rival-row">
       <div>
-        <div style="font-weight:600">${r.name}</div>
+        <div style="font-weight:600">${esc(r.name)}</div>
         <div style="font-size:10px;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.6px;font-weight:600">${tot} partido${tot !== 1 ? 's' : ''}</div>
       </div>
       <div style="text-align:right">
@@ -1313,6 +1519,157 @@ function loadStats() {
     </div>`;
   }).join('');
 }
+
+/* ============================================================
+   JUGADORES — renombrar y fusionar
+============================================================ */
+let _renameTarget = null;   // nombre actual que se está editando
+let _playerGroups = [];     // último render, para resolver clics por índice
+
+function renderPlayers() {
+  const groups = getPlayerGroups();
+  _playerGroups = groups;
+
+  /* datalist para autocompletar en el formulario */
+  document.getElementById('players-datalist').innerHTML =
+    groups.map(g => `<option value="${esc(g.display)}"></option>`).join('');
+
+  /* aviso de variantes del mismo nombre (tildes, mayúsculas, espacios) */
+  const dups = groups.filter(g => g.variants.length > 1);
+  const dupEl = document.getElementById('dup-warning');
+  dupEl.innerHTML = !dups.length ? '' : `
+    <div class="dup-card">
+      <h4><i class="ti ti-alert-triangle"></i> Nombres escritos de distinta forma</h4>
+      <p>Se están contando como la misma persona, pero conviene unificarlos.</p>
+      ${dups.map(g => `
+        <div class="dup-group">
+          <div class="dup-variants">
+            ${g.variants.map(v => `<span class="dup-variant"><b>${esc(v.name)}</b> · ${v.count}</span>`).join('')}
+          </div>
+          <button class="btn sm primary" onclick="unifyGroup(${groups.indexOf(g)})">
+            <i class="ti ti-arrows-join"></i> Unificar como "${esc(g.display)}"
+          </button>
+        </div>`).join('')}
+    </div>`;
+
+  /* listado de jugadores */
+  const el = document.getElementById('players-list');
+  if (!groups.length) {
+    el.innerHTML = '<div class="empty" style="padding:1.5rem"><p>Todavía no hay jugadores cargados</p></div>';
+    return;
+  }
+  el.innerHTML = groups.map((g, i) => `
+    <div class="player-row">
+      <div class="pr-name">${esc(g.display)}${sameName(g.display, currentUser.name) ? '<span class="pr-you">Vos</span>' : ''}</div>
+      <div class="pr-count">${g.count} partido${g.count !== 1 ? 's' : ''}</div>
+      <button class="btn sm icon" title="Renombrar" onclick="openRename(${i})">
+        <i class="ti ti-pencil"></i>
+      </button>
+    </div>`).join('');
+}
+
+/* Unifica todas las variantes de un grupo bajo su nombre más usado */
+function unifyGroup(i) {
+  const g = _playerGroups[i];
+  if (!g) return;
+  const n = applyRename(g.display, g.display);
+  refreshAfterRename();
+  showToast(`Unificado en "${g.display}" · ${n} cambio${n !== 1 ? 's' : ''} ✓`);
+}
+
+function openRename(i) {
+  const g = _playerGroups[i];
+  if (!g) return;
+  const name = g.display;
+  _renameTarget = name;
+  document.getElementById('rn-input').value = name;
+  document.getElementById('rn-err').textContent = '';
+  document.getElementById('rn-hint').textContent =
+    'Se actualizarán todos los partidos donde aparece este jugador.';
+  document.getElementById('rename-modal').classList.add('show');
+  setTimeout(() => {
+    const i = document.getElementById('rn-input');
+    i.focus(); i.select();
+  }, 50);
+}
+function closeRename() {
+  document.getElementById('rename-modal').classList.remove('show');
+  _renameTarget = null;
+}
+
+function confirmRename() {
+  const err = document.getElementById('rn-err');
+  const nuevo = document.getElementById('rn-input').value.trim();
+  if (!_renameTarget) return closeRename();
+  if (!nuevo) { err.textContent = 'Ingresá un nombre'; return; }
+  if (nuevo === _renameTarget) return closeRename();
+
+  /* ¿el nombre nuevo ya existe como otra persona? → fusión */
+  const existente = getPlayerGroups()
+    .find(g => g.key === normName(nuevo) && g.key !== normName(_renameTarget));
+  if (existente && !confirm(
+        `"${nuevo}" ya existe con ${existente.count} partido(s).\n\n` +
+        `¿Fusionar "${_renameTarget}" con "${nuevo}"? Van a quedar como una sola persona.`)) {
+    return;
+  }
+
+  const n = applyRename(_renameTarget, nuevo);
+  const antes = _renameTarget;
+  closeRename();
+  refreshAfterRename();
+  showToast(existente
+    ? `Fusionado en "${nuevo}" ✓`
+    : `"${antes}" → "${nuevo}" · ${n} cambio${n !== 1 ? 's' : ''} ✓`);
+}
+
+/* Reemplaza en TODOS los partidos cualquier variante de `oldName` por `newName`.
+   Devuelve la cantidad de campos modificados. */
+function applyRename(oldName, newName) {
+  const key = normName(oldName);
+  let changed = 0;
+  allMatches.forEach(m => {
+    ['t1', 't2', 'r1', 'r2'].forEach(slot => {
+      const v = m.players[slot];
+      if (v && normName(v) === key && v !== newName) {
+        m.players[slot] = newName;
+        changed++;
+      }
+    });
+  });
+  if (changed) saveMatches(allMatches);
+
+  /* si me renombré a mí mismo, actualizo también mi usuario */
+  if (key === normName(currentUser.name) && currentUser.name !== newName) {
+    currentUser.name = newName;
+    const users = getUsers();
+    if (users[currentUser.username]) {
+      users[currentUser.username].name = newName;
+      saveUsers(users);
+    }
+    document.getElementById('user-label').textContent = newName;
+    document.getElementById('user-avatar').textContent =
+      newName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    document.getElementById('p-t1').value = newName;
+  }
+  return changed;
+}
+
+function refreshAfterRename() {
+  applyFilters();
+  populateStatsFilter();
+  loadStats();
+  renderPlayers();
+}
+
+/* Atajos del modal: Enter guarda, Escape y click afuera cierran */
+document.addEventListener('DOMContentLoaded', () => {
+  const back = document.getElementById('rename-modal');
+  back.addEventListener('click', e => { if (e.target === back) closeRename(); });
+  document.getElementById('rn-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); confirmRename(); }
+    if (e.key === 'Escape') { e.preventDefault(); closeRename(); }
+  });
+});
 
 /* ============================================================
    CSV EXPORT
