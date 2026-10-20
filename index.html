@@ -36,6 +36,38 @@
       --radius-lg:    10px;
       --shadow:       0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.05);
       --shadow-md:    0 2px 8px rgba(0,0,0,0.10), 0 4px 20px rgba(0,0,0,0.08);
+      --on-dark:      #FFFFFF;   /* texto sobre verde oscuro: constante en ambos temas */
+      --surface:      #FFFFFF;   /* fondo de tarjetas */
+      --surface-alt:  #FAF7F1;   /* filas alternadas, inputs */
+    }
+
+    /* ============================================================
+       MODO OSCURO
+       Sólo se redefinen las variables: ningún componente cambia.
+    ============================================================ */
+    [data-theme="dark"] {
+      --orange:       #E86A47;
+      --orange-dark:  #C9522F;
+      --orange-light: rgba(232,106,71,0.16);
+      --green:        #0B241C;
+      --green-mid:    #15382A;
+      --green-light:  rgba(255,255,255,0.06);
+      --cream:        #14150F;
+      --cream-dark:   #1F201A;
+      --sand:         #2A2B23;
+      --stone:        #8F8D7E;
+      --white:        #1F201A;
+      --charcoal:     #F0EDE4;
+      --text:         #F0EDE4;
+      --text-muted:   #B2AFA2;
+      --text-hint:    #7D7B6E;
+      --border:       rgba(255,255,255,0.10);
+      --border-md:    rgba(255,255,255,0.20);
+      --shadow:       0 1px 3px rgba(0,0,0,0.40), 0 2px 8px rgba(0,0,0,0.30);
+      --shadow-md:    0 2px 8px rgba(0,0,0,0.50), 0 4px 20px rgba(0,0,0,0.40);
+      --on-dark:      #FFFFFF;
+      --surface:      #1F201A;
+      --surface-alt:  #25261F;
     }
 
     body {
@@ -103,7 +135,7 @@
       z-index: 1;
     }
     .login-hero h1 {
-      color: var(--white);
+      color: var(--on-dark);
       font-size: 24px;
       font-weight: 700;
       letter-spacing: 4px;
@@ -349,6 +381,106 @@
     .tabs-content.active { display: block; }
 
     /* ============================================================
+       AVATARES
+    ============================================================ */
+    .pavatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+      line-height: 1;
+      user-select: none;
+    }
+    .pavatar.sm { width: 20px; height: 20px; font-size: 8px; }
+    .pavatar.md { width: 30px; height: 30px; font-size: 11px; }
+    .pavatar.lg { width: 44px; height: 44px; font-size: 15px; }
+
+    /* ============================================================
+       RACHAS
+    ============================================================ */
+    .streak-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 520px) {
+      .streak-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .streak-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .streak-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+    .streak-num { font-size: 18px; font-weight: 700; line-height: 1.15; }
+    .streak-lbl {
+      font-size: 9px;
+      color: var(--text-hint);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+       DESGLOSE (superficie / club)
+    ============================================================ */
+    .bd-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .bd-row:first-child { padding-top: 0; }
+    .bd-row:last-child  { border-bottom: none; padding-bottom: 0; }
+    .bd-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .bd-main { flex: 1; min-width: 0; }
+    .bd-name {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .bd-bar {
+      height: 5px;
+      background: var(--cream-dark);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bd-bar > div {
+      height: 100%;
+      background: var(--green);
+      border-radius: 3px;
+    }
+    .bd-num { text-align: right; flex-shrink: 0; }
+    .bd-wl { font-size: 12px; color: var(--text-muted); }
+    .bd-wl b { color: var(--green); font-size: 13px; }
+    .bd-pct {
+      font-size: 9px;
+      color: var(--text-hint);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+    }
+
+    /* ============================================================
        EDIT MODE
     ============================================================ */
     #edit-banner {
@@ -357,7 +489,7 @@
       justify-content: space-between;
       gap: 10px;
       background: var(--green);
-      color: var(--white);
+      color: var(--on-dark);
       border-radius: var(--radius-md);
       padding: 10px 14px;
       margin-bottom: 1rem;
@@ -369,7 +501,7 @@
     #edit-banner button {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.35);
-      color: var(--white);
+      color: var(--on-dark);
       border-radius: var(--radius-sm);
       padding: 4px 10px;
       font-size: 11px;
@@ -418,7 +550,7 @@
       letter-spacing: 1px;
       text-transform: uppercase;
       background: var(--green);
-      color: var(--white);
+      color: var(--on-dark);
       padding: 2px 6px;
       border-radius: 2px;
       margin-left: 6px;
@@ -484,7 +616,7 @@
     .modal-head {
       background: var(--green);
       padding: 14px 18px;
-      color: var(--white);
+      color: var(--on-dark);
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
@@ -834,6 +966,12 @@
     <div class="header-right">
       <span class="header-username" id="user-label"></span>
       <div class="avatar" id="user-avatar">JF</div>
+      <button class="btn sm icon" id="theme-btn"
+        onclick="toggleTheme()"
+        style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.18);background:transparent"
+        title="Cambiar tema">
+        <i class="ti ti-moon"></i>
+      </button>
       <button class="btn sm icon"
         onclick="doLogout()"
         style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.18);background:transparent"
@@ -914,6 +1052,19 @@
         <button class="btn sm icon" onclick="exportStatsCSV()" title="Exportar"><i class="ti ti-download"></i></button>
       </div>
       <div class="stat-grid" id="stat-summary"></div>
+
+      <div class="section-title">Rachas</div>
+      <div class="streak-grid" id="streak-summary"></div>
+
+      <div class="section-title">Evolución del % de victorias</div>
+      <div class="card" id="winrate-chart"></div>
+
+      <div class="section-title">Por superficie</div>
+      <div class="card" id="surface-list"></div>
+
+      <div class="section-title">Por club</div>
+      <div class="card" id="place-list"></div>
+
       <div class="section-title">Récord por rival</div>
       <div class="card" style="padding:0 1.25rem" id="rivals-list"></div>
     </div>
@@ -937,7 +1088,21 @@
             </label>
           </div>
         </div>
-        <label>Lugar / Club<input id="n-place" type="text" placeholder="Club de Tenis…"></label>
+        <div class="row2">
+          <div><label>Lugar / Club<input id="n-place" type="text" placeholder="Club de Tenis…" list="places-datalist" autocomplete="off"></label></div>
+          <div>
+            <label>Superficie
+              <select id="n-surface">
+                <option value="">Sin especificar</option>
+                <option value="polvo">Polvo de ladrillo</option>
+                <option value="cemento">Cemento</option>
+                <option value="cesped">Césped</option>
+                <option value="sintetico">Sintético</option>
+                <option value="indoor">Indoor</option>
+              </select>
+            </label>
+          </div>
+        </div>
 
         <div class="section-title">Jugadores</div>
         <div class="row2">
@@ -1021,10 +1186,41 @@
 </div>
 
 <datalist id="players-datalist"></datalist>
+<datalist id="places-datalist"></datalist>
 
 <div id="toast" class="toast"></div>
 
 <script>
+/* ============================================================
+   TEMA CLARO / OSCURO
+   Se aplica antes de pintar para evitar el "flash" blanco.
+============================================================ */
+const THEME_KEY = 'tl_theme';
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.innerHTML = `<i class="ti ti-${theme === 'dark' ? 'sun' : 'moon'}"></i>`;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0B241C' : '#063024');
+}
+function currentTheme() {
+  return document.documentElement.getAttribute('data-theme') || 'light';
+}
+function toggleTheme() {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  applyTheme(next);
+}
+/* Arranque: lo que eligió el usuario, o lo que use su sistema */
+(function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  const prefiereOscuro = window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefiereOscuro ? 'dark' : 'light'));
+})();
+
 /* ============================================================
    SERVICE WORKER
 ============================================================ */
@@ -1222,8 +1418,7 @@ function doLogout() {
 function initApp() {
   document.getElementById('login-screen').classList.remove('active');
   document.getElementById('app-screen').classList.add('active');
-  const initials = currentUser.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  document.getElementById('user-avatar').textContent = initials;
+  setUserAvatar(currentUser.name);
   document.getElementById('user-label').textContent  = currentUser.name;
   document.getElementById('n-date').valueAsDate = new Date();
   document.getElementById('p-t1').value = currentUser.name;
@@ -1284,6 +1479,7 @@ function editMatch(id) {
   sv('n-date', m.date);
   sv('n-mode', m.mode);
   sv('n-place', m.place);
+  sv('n-surface', m.surface || '');
   updatePlayers();                       // muestra/oculta los campos de dobles
   sv('p-t1', m.players.t1); sv('p-t2', m.players.t2);
   sv('p-r1', m.players.r1); sv('p-r2', m.players.r2);
@@ -1317,7 +1513,7 @@ function newMatch() {
 }
 
 function resetMatchForm() {
-  ['s1-t','s1-r','s1-tb','s2-t','s2-r','s2-tb','s3-t','s3-r','s3-tb','n-place','p-r1','p-r2','p-t2']
+  ['s1-t','s1-r','s1-tb','s2-t','s2-r','s2-tb','s3-t','s3-r','s3-tb','n-place','n-surface','p-r1','p-r2','p-t2']
     .forEach(id => { document.getElementById(id).value = ''; });
   sv('n-mode', 'singles');
   updatePlayers();
@@ -1352,7 +1548,7 @@ function saveMatch() {
   /* si el nombre ya existe escrito de otra forma, uso el que ya está cargado */
   const t1 = canonical(gv('p-t1')), r1 = canonical(gv('p-r1')),
         t2 = canonical(gv('p-t2')), r2 = canonical(gv('p-r2'));
-  const date = gv('n-date'), place = gv('n-place');
+  const date = gv('n-date'), place = gv('n-place'), surface = gv('n-surface');
   if (!date)               { err.textContent = 'Ingresá la fecha'; return; }
   if (!t1 || !r1)          { err.textContent = 'Ingresá los jugadores'; return; }
   if (isD && (!t2 || !r2)) { err.textContent = 'Ingresá los 4 jugadores para dobles'; return; }
@@ -1366,7 +1562,7 @@ function saveMatch() {
   err.textContent = '';
 
   const datos = {
-    date, place, mode,
+    date, place, surface, mode,
     players: { t1, t2: isD ? t2 : '', r1, r2: isD ? r2 : '' },
     sets, winner: determineWinner(sets)
   };
@@ -1402,6 +1598,8 @@ function saveMatch() {
 ============================================================ */
 function renderScoreboard(match) {
   const { players, sets, winner, mode, place } = match;
+  const sup = SURFACES[match.surface];
+  const lugar = [place, sup ? sup.label : ''].filter(Boolean).join(' · ');
   const tName = esc(mode === 'doubles' ? `${players.t1} / ${players.t2}` : players.t1);
   const rName = esc(mode === 'doubles' ? `${players.r1} / ${players.r2}` : players.r1);
   const tWon  = winner === 'team';
@@ -1422,7 +1620,7 @@ function renderScoreboard(match) {
   return `<div class="scoreboard">
     <div class="sb-eyebrow">
       <span>${mode === 'doubles' ? 'Dobles' : 'Singles'}</span>
-      <span>${place || ''}</span>
+      <span>${esc(lugar)}</span>
     </div>
     <div class="sb-header"><span></span><span>S1</span><span>S2</span><span>S3</span><span></span></div>
     <div class="sb-row">
@@ -1505,6 +1703,58 @@ function renderHistory() {
 /* ============================================================
    STATS
 ============================================================ */
+/* ============================================================
+   SUPERFICIES
+============================================================ */
+const SURFACES = {
+  polvo:     { label: 'Polvo de ladrillo', short: 'Polvo',     color: '#D44C2A' },
+  cemento:   { label: 'Cemento',           short: 'Cemento',   color: '#3E7CB1' },
+  cesped:    { label: 'Césped',            short: 'Césped',    color: '#4A7C45' },
+  sintetico: { label: 'Sintético',         short: 'Sintético', color: '#8A6BA8' },
+  indoor:    { label: 'Indoor',            short: 'Indoor',    color: '#9A7B42' }
+};
+function surfaceLabel(k) { return SURFACES[k] ? SURFACES[k].label : 'Sin especificar'; }
+function surfaceColor(k) { return SURFACES[k] ? SURFACES[k].color : 'var(--stone)'; }
+
+/* ============================================================
+   AVATARES — iniciales + color estable derivado del nombre
+============================================================ */
+const AVATAR_COLORS = [
+  '#D44C2A', '#063024', '#3E7CB1', '#4A7C45', '#8A6BA8',
+  '#B5762A', '#2F7D74', '#A8434F', '#5A6B8C', '#7A6240'
+];
+
+/* Hash determinístico: el mismo nombre da siempre el mismo color,
+   en cualquier dispositivo y en cualquier sesión. */
+function avatarColor(name) {
+  const k = normName(name);
+  let h = 0;
+  for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) % 100000;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function initials(name) {
+  return (name || '?')
+    .trim().split(/\s+/)
+    .filter(w => /[a-zA-ZÀ-ÿ0-9]/.test(w))
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase() || '?';
+}
+/* Avatar del header: iniciales + el mismo color que en el resto de la app */
+function setUserAvatar(name) {
+  const el = document.getElementById('user-avatar');
+  if (!el) return;
+  el.textContent = initials(name);
+  el.style.background = avatarColor(name);
+  el.style.color = '#fff';
+}
+
+/* size: 'sm' | 'md' | 'lg' */
+function avatarHTML(name, size = 'md') {
+  return `<span class="pavatar ${size}" style="background:${avatarColor(name)}" title="${esc(name)}">${esc(initials(name))}</span>`;
+}
+
 /* Escapa texto para insertar en HTML de forma segura */
 function esc(s) {
   return String(s == null ? '' : s)
@@ -1583,6 +1833,125 @@ function canonical(name) {
   return g ? g.display : name;
 }
 
+/* ============================================================
+   RACHAS
+   Recibe los partidos de un jugador y devuelve racha actual
+   y mejores rachas de victorias y de derrotas.
+============================================================ */
+function calcStreaks(matches, playerName) {
+  /* del más viejo al más nuevo */
+  const orden = [...matches].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const res = orden.map(m => getResultFor(m, playerName));
+
+  let mejorW = 0, mejorL = 0, runW = 0, runL = 0;
+  res.forEach(r => {
+    if (r === 'W') { runW++; runL = 0; if (runW > mejorW) mejorW = runW; }
+    else           { runL++; runW = 0; if (runL > mejorL) mejorL = runL; }
+  });
+
+  /* racha actual: cuenta hacia atrás desde el último partido */
+  let actual = 0, tipo = null;
+  for (let i = res.length - 1; i >= 0; i--) {
+    if (tipo === null) { tipo = res[i]; actual = 1; }
+    else if (res[i] === tipo) actual++;
+    else break;
+  }
+  return { mejorW, mejorL, actual, tipo };   // tipo: 'W' | 'L' | null
+}
+
+/* ============================================================
+   GRÁFICO DE EVOLUCIÓN DEL WIN RATE (SVG inline, sin librerías)
+   Muestra el % de victorias acumulado partido a partido.
+============================================================ */
+function winRateChart(matches, playerName) {
+  const orden = [...matches].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  if (orden.length < 2) {
+    return `<div class="empty" style="padding:1.25rem">
+      <p>Necesitás al menos 2 partidos para ver la evolución</p>
+    </div>`;
+  }
+
+  /* win rate acumulado en cada punto */
+  let w = 0;
+  const pts = orden.map((m, i) => {
+    if (getResultFor(m, playerName) === 'W') w++;
+    return { x: i, y: Math.round(w / (i + 1) * 100), date: m.date, res: getResultFor(m, playerName) };
+  });
+
+  const W = 300, H = 110, PL = 26, PR = 6, PT = 8, PB = 16;
+  const iw = W - PL - PR, ih = H - PT - PB;
+  const px = i => PL + (pts.length === 1 ? iw / 2 : (i / (pts.length - 1)) * iw);
+  const py = v => PT + ih - (v / 100) * ih;
+
+  const linea = pts.map((p, i) => `${i ? 'L' : 'M'}${px(i).toFixed(1)},${py(p.y).toFixed(1)}`).join(' ');
+  const area  = `${linea} L${px(pts.length - 1).toFixed(1)},${(PT + ih).toFixed(1)} L${px(0).toFixed(1)},${(PT + ih).toFixed(1)} Z`;
+
+  const grid = [0, 25, 50, 75, 100].map(v => `
+    <line x1="${PL}" y1="${py(v)}" x2="${W - PR}" y2="${py(v)}"
+          stroke="var(--border)" stroke-width="0.5"/>
+    <text x="${PL - 5}" y="${py(v) + 2.5}" text-anchor="end"
+          font-size="6" fill="var(--text-hint)">${v}</text>`).join('');
+
+  /* un punto por partido, verde si ganó y naranja si perdió */
+  const dots = pts.map((p, i) =>
+    `<circle cx="${px(i).toFixed(1)}" cy="${py(p.y).toFixed(1)}" r="2"
+             fill="${p.res === 'W' ? 'var(--green)' : 'var(--orange)'}"
+             stroke="var(--surface)" stroke-width="0.8"><title>${p.date} · ${p.y}%</title></circle>`
+  ).join('');
+
+  const fFmt = d => new Date(d + 'T12:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block" role="img"
+         aria-label="Evolución del porcentaje de victorias">
+      <defs>
+        <linearGradient id="wrFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="var(--orange)" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="var(--orange)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${grid}
+      <path d="${area}"  fill="url(#wrFill)"/>
+      <path d="${linea}" fill="none" stroke="var(--orange)" stroke-width="1.6"
+            stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      <text x="${PL}" y="${H - 4}" font-size="6" fill="var(--text-hint)">${fFmt(pts[0].date)}</text>
+      <text x="${W - PR}" y="${H - 4}" font-size="6" fill="var(--text-hint)" text-anchor="end">${fFmt(pts[pts.length - 1].date)}</text>
+    </svg>`;
+}
+
+/* ============================================================
+   DESGLOSE POR SUPERFICIE Y POR CLUB
+============================================================ */
+function breakdownBy(matches, playerName, keyFn) {
+  const mapa = {};
+  matches.forEach(m => {
+    const k = keyFn(m);
+    if (!mapa[k]) mapa[k] = { key: k, w: 0, l: 0 };
+    if (getResultFor(m, playerName) === 'W') mapa[k].w++; else mapa[k].l++;
+  });
+  return Object.values(mapa).sort((a, b) => (b.w + b.l) - (a.w + a.l));
+}
+
+function renderBreakdown(filas, etiqueta, colorFn) {
+  if (!filas.length) return '';
+  return filas.map(f => {
+    const tot = f.w + f.l;
+    const pct = Math.round(f.w / tot * 100);
+    return `<div class="bd-row">
+      <span class="bd-dot" style="background:${colorFn(f.key)}"></span>
+      <div class="bd-main">
+        <div class="bd-name">${esc(etiqueta(f.key))}</div>
+        <div class="bd-bar"><div style="width:${pct}%"></div></div>
+      </div>
+      <div class="bd-num">
+        <div class="bd-wl"><b>${f.w}</b>V / ${f.l}D</div>
+        <div class="bd-pct">${pct}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function populateStatsFilter() {
   const sel = document.getElementById('stats-player-filter');
   const cur = sel.value || '__me__';
@@ -1622,6 +1991,51 @@ function loadStats() {
       </div>
     </div>`;
 
+  /* ── RACHAS ── */
+  const st = calcStreaks(myMatches, playerName);
+  const actualTxt = st.tipo === null ? '—'
+    : `${st.actual} ${st.tipo === 'W' ? (st.actual === 1 ? 'victoria' : 'victorias') : (st.actual === 1 ? 'derrota' : 'derrotas')}`;
+  const actualColor = st.tipo === 'W' ? 'var(--green)' : st.tipo === 'L' ? 'var(--orange)' : 'var(--stone)';
+  document.getElementById('streak-summary').innerHTML = `
+    <div class="streak-card">
+      <div class="streak-icon" style="color:${actualColor}">
+        <i class="ti ti-${st.tipo === 'W' ? 'flame' : st.tipo === 'L' ? 'trending-down' : 'minus'}"></i>
+      </div>
+      <div>
+        <div class="streak-num" style="color:${actualColor}">${actualTxt}</div>
+        <div class="streak-lbl">Racha actual</div>
+      </div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-icon" style="color:var(--green)"><i class="ti ti-trophy"></i></div>
+      <div>
+        <div class="streak-num" style="color:var(--green)">${st.mejorW}</div>
+        <div class="streak-lbl">Mejor racha ganando</div>
+      </div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-icon" style="color:var(--stone)"><i class="ti ti-mood-sad"></i></div>
+      <div>
+        <div class="streak-num" style="color:var(--text-muted)">${st.mejorL}</div>
+        <div class="streak-lbl">Peor racha perdiendo</div>
+      </div>
+    </div>`;
+
+  /* ── GRÁFICO DE EVOLUCIÓN ── */
+  document.getElementById('winrate-chart').innerHTML = winRateChart(myMatches, playerName);
+
+  /* ── POR SUPERFICIE ── */
+  const porSup = breakdownBy(myMatches, playerName, m => m.surface || '');
+  document.getElementById('surface-list').innerHTML =
+    renderBreakdown(porSup, surfaceLabel, surfaceColor) ||
+    '<div class="empty" style="padding:1.25rem"><p>Sin partidos</p></div>';
+
+  /* ── POR CLUB ── */
+  const porClub = breakdownBy(myMatches, playerName, m => (m.place || '').trim());
+  document.getElementById('place-list').innerHTML =
+    renderBreakdown(porClub, k => k || 'Sin especificar', () => 'var(--green)') ||
+    '<div class="empty" style="padding:1.25rem"><p>Sin partidos</p></div>';
+
   const rivalMap = {};
   myMatches.forEach(m => {
     const res = getResultFor(m, playerName);
@@ -1642,9 +2056,12 @@ function loadStats() {
     const tot = r.w + r.l;
     const wp  = Math.round(r.w / tot * 100);
     return `<div class="rival-row">
-      <div>
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        ${avatarHTML(r.name, 'md')}
+        <div style="min-width:0">
         <div style="font-weight:600">${esc(r.name)}</div>
         <div style="font-size:10px;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.6px;font-weight:600">${tot} partido${tot !== 1 ? 's' : ''}</div>
+        </div>
       </div>
       <div style="text-align:right">
         <div class="rival-wl">
@@ -1668,9 +2085,14 @@ function renderPlayers() {
   const groups = getPlayerGroups();
   _playerGroups = groups;
 
-  /* datalist para autocompletar en el formulario */
+  /* datalists para autocompletar en el formulario */
   document.getElementById('players-datalist').innerHTML =
     groups.map(g => `<option value="${esc(g.display)}"></option>`).join('');
+
+  const clubes = [...new Set(allMatches.map(m => (m.place || '').trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'es'));
+  document.getElementById('places-datalist').innerHTML =
+    clubes.map(c => `<option value="${esc(c)}"></option>`).join('');
 
   /* aviso de variantes del mismo nombre (tildes, mayúsculas, espacios) */
   const dups = groups.filter(g => g.variants.length > 1);
@@ -1698,6 +2120,7 @@ function renderPlayers() {
   }
   el.innerHTML = groups.map((g, i) => `
     <div class="player-row">
+      ${avatarHTML(g.display, 'md')}
       <div class="pr-name">${esc(g.display)}${sameName(g.display, currentUser.name) ? '<span class="pr-you">Vos</span>' : ''}</div>
       <div class="pr-count">${g.count} partido${g.count !== 1 ? 's' : ''}</div>
       <button class="btn sm icon" title="Renombrar" onclick="openRename(${i})">
@@ -1785,8 +2208,7 @@ function applyRename(oldName, newName) {
       saveUsers(users);
     }
     document.getElementById('user-label').textContent = newName;
-    document.getElementById('user-avatar').textContent =
-      newName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    setUserAvatar(newName);
     document.getElementById('p-t1').value = newName;
   }
   return changed;
@@ -1825,10 +2247,10 @@ function downloadCSV(rows, filename) {
   URL.revokeObjectURL(url);
 }
 function exportCSV() {
-  const rows = [['Fecha','Lugar','Modalidad','Equipo A J1','Equipo A J2','Equipo B J1','Equipo B J2','Score','Ganador','Cargado por']];
+  const rows = [['Fecha','Lugar','Superficie','Modalidad','Equipo A J1','Equipo A J2','Equipo B J1','Equipo B J2','Score','Ganador','Cargado por']];
   filteredMatches.forEach(m => {
     const w = m.winner === 'team' ? m.players.t1 : m.players.r1;
-    rows.push([m.date, m.place||'', m.mode, m.players.t1, m.players.t2||'', m.players.r1, m.players.r2||'', scoreStr(m), w, m.addedByName]);
+    rows.push([m.date, m.place||'', surfaceLabel(m.surface), m.mode, m.players.t1, m.players.t2||'', m.players.r1, m.players.r2||'', scoreStr(m), w, m.addedByName]);
   });
   downloadCSV(rows, 'tennis_historial.csv');
   showToast('CSV exportado ✓');

@@ -92,6 +92,7 @@ Es un diseño deliberadamente simple: toda la app lee y escribe el array entero.
   id: 1748822400000,            // Date.now() al crearlo; es la clave primaria
   date: "2026-06-02",           // YYYY-MM-DD
   place: "BAC",                 // texto libre, puede estar vacío
+  surface: "polvo",             // clave de SURFACES, o "" si no se especificó
   mode: "singles",              // "singles" | "doubles"
   players: {
     t1: "Francisco Guida",      // "tu equipo" jugador 1 (obligatorio)
@@ -115,6 +116,7 @@ Es un diseño deliberadamente simple: toda la app lee y escribe el array entero.
 - `tb` es el puntaje del que **perdió** el tie-break. Un `7-6(5)` se guarda como `{t:7, r:6, tb:5}`.
 - `winner` lo calcula `determineWinner(sets)` contando sets ganados. Nunca se ingresa a mano.
 - `id` es `Date.now()`. Suficiente para un solo usuario cargando a la vez; si dos cargan en el mismo milisegundo colisiona, pero es un riesgo aceptado.
+- `surface` es opcional y puede no existir en partidos viejos. Siempre leerlo como `m.surface || ''` y mostrarlo con `surfaceLabel()`. Las claves válidas están en la constante `SURFACES`: `polvo`, `cemento`, `cesped`, `sintetico`, `indoor`.
 
 ### Objeto `User`
 
@@ -195,7 +197,15 @@ Cada tarjeta tiene un lápiz que abre el partido en modo edición.
 
 ### Pestaña Stats
 
-Victorias, derrotas, porcentaje y desglose por rival. Un selector permite ver las estadísticas de cualquier jugador, no sólo las propias. Exportación a CSV.
+Un selector permite ver las estadísticas de cualquier jugador, no sólo las propias. Secciones, en orden:
+
+- **Resumen** — victorias, derrotas y porcentaje
+- **Rachas** — racha actual (ganando o perdiendo), mejor racha de victorias, peor racha de derrotas. Las calcula `calcStreaks()`, que ordena los partidos del más viejo al más nuevo.
+- **Evolución del % de victorias** — gráfico de línea en SVG generado a mano por `winRateChart()`, sin librerías. Muestra el win rate acumulado partido a partido; cada punto es verde si ganó y naranja si perdió. Con menos de 2 partidos muestra un aviso en vez del gráfico.
+- **Por superficie** y **Por club** — `breakdownBy()` agrupa y `renderBreakdown()` dibuja las filas con barra de progreso.
+- **Récord por rival**
+
+Exportación a CSV.
 
 ### Pestaña Jugadores
 
@@ -291,7 +301,30 @@ Tipografía: `'Helvetica Neue', Arial, sans-serif`. Títulos en mayúsculas con 
 
 Elementos característicos: emblema circular "RG", barra naranja de 3px separando secciones, círculos decorativos semitransparentes en el hero del login, scoreboard verde oscuro con punto naranja marcando al ganador.
 
-**Al agregar pantallas nuevas, usá las variables CSS existentes.** No hardcodees colores.
+**Al agregar pantallas nuevas, usá las variables CSS existentes.** No hardcodees colores — si lo hacés, el modo oscuro se rompe.
+
+### Modo oscuro
+
+Implementado redefiniendo **sólo las variables** bajo `[data-theme="dark"]`. Ningún componente tiene reglas propias para el tema oscuro, y esa es la idea: mientras uses variables, cualquier cosa nueva funciona en ambos temas sin tocar nada.
+
+Dos variables merecen atención:
+
+| Variable | Para qué |
+|---|---|
+| `--white` | **Fondo** de tarjetas y superficies. En modo oscuro vale `#1F201A`, no blanco. |
+| `--on-dark` | **Texto** que va sobre el verde oscuro (header, scoreboard, modal). Vale `#FFFFFF` en ambos temas. |
+
+Confundirlas es el error fácil: si usás `--white` para texto sobre verde, en modo oscuro queda invisible.
+
+El tema se guarda en `localStorage` bajo `tl_theme`. Si el usuario nunca eligió, se usa `prefers-color-scheme` del sistema. Se aplica antes de pintar para que no haya flash blanco, y el botón está en el header (`toggleTheme()`).
+
+### Avatares
+
+Círculo con iniciales y color derivado del nombre. Sin fotos, sin almacenamiento.
+
+`avatarColor(name)` hashea el nombre **normalizado** (así "Martín" y "Martin" dan el mismo color) y elige de una paleta de 10. Es determinístico: mismo nombre, mismo color, en cualquier dispositivo y sesión.
+
+`avatarHTML(name, size)` devuelve el markup; los tamaños son `sm` (20px), `md` (30px) y `lg` (44px). El avatar del header lo maneja `setUserAvatar()` porque el elemento ya existía en el HTML.
 
 ---
 
@@ -379,13 +412,12 @@ Lo que está mal a propósito o pendiente, en orden de importancia:
 
 Nada de esto está comprometido, son posibilidades:
 
-- Rachas (mejor racha de victorias, racha actual)
-- Gráfico de evolución del win rate en el tiempo
-- Estadísticas por superficie o por club
 - Importar un CSV desde la UI (hoy la restauración está hardcodeada)
-- Modo oscuro
 - Instalación como PWA con prompt (los meta tags ya están, falta el manifest)
-- Foto o avatar por jugador
+- Fotos reales por jugador (hoy son iniciales de color)
+- Filtrar el historial por superficie
+- Completar en lote la superficie de los partidos viejos desde un mismo lugar
+- Comparación cara a cara entre dos jugadores
 
 ---
 
@@ -395,6 +427,6 @@ Nada de esto está comprometido, son posibilidades:
 >
 > Leé primero `HANDOFF.md`, que tiene la arquitectura completa, el modelo de datos y las convenciones del código.
 >
-> Restricciones importantes: mantener todo en un solo archivo, usar las variables CSS existentes para cualquier estilo nuevo, comparar nombres de jugadores siempre con `sameName()` y nunca con `===`, escapar con `esc()` todo dato que se inserte en HTML, y subir `CACHE_NAME` en `sw.js` en cada cambio.
+> Restricciones importantes: mantener todo en un solo archivo, usar las variables CSS existentes para cualquier estilo nuevo (si hardcodeás colores se rompe el modo oscuro), no confundir `--white` (fondo) con `--on-dark` (texto sobre verde), comparar nombres de jugadores siempre con `sameName()` y nunca con `===`, escapar con `esc()` todo dato que se inserte en HTML, y subir `CACHE_NAME` en `sw.js` en cada cambio.
 >
 > Lo que necesito hacer es: [tu pedido acá]
