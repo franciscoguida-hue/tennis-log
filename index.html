@@ -349,6 +349,44 @@
     .tabs-content.active { display: block; }
 
     /* ============================================================
+       EDIT MODE
+    ============================================================ */
+    #edit-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--green);
+      color: var(--white);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 1rem;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+    #edit-banner.show { display: flex; }
+    #edit-banner button {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.35);
+      color: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+    #edit-banner button:hover { background: rgba(255,255,255,0.12); }
+    .card-edit {
+      padding: 3px 6px !important;
+      font-size: 11px;
+      line-height: 1;
+      margin-left: 2px;
+    }
+
+    /* ============================================================
        PLAYERS (gestión de nombres)
     ============================================================ */
     .player-row {
@@ -882,6 +920,10 @@
 
     <!-- NUEVO PARTIDO -->
     <div id="tab-new" class="tabs-content">
+      <div id="edit-banner">
+        <span><i class="ti ti-pencil"></i> Editando un partido ya cargado</span>
+        <button onclick="cancelEdit()">Cancelar</button>
+      </div>
       <div class="card">
         <div class="section-title">Datos del partido</div>
         <div class="row2">
@@ -933,8 +975,11 @@
           <input id="s3-tb" type="number" min="0" max="13" placeholder="—">
         </div>
         <div id="f-err" class="err"></div>
-        <button class="btn primary btn-full" onclick="saveMatch()">
-          <i class="ti ti-device-floppy"></i> Guardar partido
+        <button class="btn primary btn-full" id="save-btn" onclick="saveMatch()">
+          <i class="ti ti-device-floppy"></i> <span id="save-btn-label">Guardar partido</span>
+        </button>
+        <button class="btn btn-full" id="delete-btn" style="display:none;margin-top:10px;color:var(--orange);border-color:rgba(212,76,42,0.35)" onclick="deleteMatch()">
+          <i class="ti ti-trash"></i> Eliminar este partido
         </button>
       </div>
     </div>
@@ -951,7 +996,7 @@
     <button onclick="switchTab('players')" id="nav-players">
       <i class="ti ti-users"></i><span>Jugadores</span>
     </button>
-    <button onclick="switchTab('new')" id="nav-new">
+    <button onclick="newMatch()" id="nav-new">
       <i class="ti ti-circle-plus"></i><span>Nuevo</span>
     </button>
   </nav>
@@ -1224,6 +1269,82 @@ function determineWinner(sets) {
   return tw > rw ? 'team' : 'rivals';
 }
 
+/* ============================================================
+   EDITAR PARTIDO
+============================================================ */
+let _editingId = null;   // id del partido que se está editando (null = alta nueva)
+
+function sv(id, val) { document.getElementById(id).value = (val === null || val === undefined) ? '' : val; }
+
+function editMatch(id) {
+  const m = allMatches.find(x => x.id === id);
+  if (!m) return;
+  _editingId = id;
+
+  sv('n-date', m.date);
+  sv('n-mode', m.mode);
+  sv('n-place', m.place);
+  updatePlayers();                       // muestra/oculta los campos de dobles
+  sv('p-t1', m.players.t1); sv('p-t2', m.players.t2);
+  sv('p-r1', m.players.r1); sv('p-r2', m.players.r2);
+
+  [0, 1, 2].forEach(i => {
+    const s = m.sets[i];
+    sv(`s${i+1}-t`,  s ? s.t  : '');
+    sv(`s${i+1}-r`,  s ? s.r  : '');
+    sv(`s${i+1}-tb`, s ? s.tb : '');
+  });
+
+  document.getElementById('f-err').textContent = '';
+  document.getElementById('edit-banner').classList.add('show');
+  document.getElementById('save-btn-label').textContent = 'Guardar cambios';
+  document.getElementById('delete-btn').style.display = 'flex';
+  switchTab('new');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelEdit() {
+  _editingId = null;
+  resetMatchForm();
+  switchTab('history');
+}
+
+/* "Nuevo" en la barra inferior: siempre arranca un alta limpia */
+function newMatch() {
+  _editingId = null;
+  resetMatchForm();
+  switchTab('new');
+}
+
+function resetMatchForm() {
+  ['s1-t','s1-r','s1-tb','s2-t','s2-r','s2-tb','s3-t','s3-r','s3-tb','n-place','p-r1','p-r2','p-t2']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  sv('n-mode', 'singles');
+  updatePlayers();
+  document.getElementById('n-date').valueAsDate = new Date();
+  document.getElementById('p-t1').value = currentUser.name;
+  document.getElementById('f-err').textContent = '';
+  document.getElementById('edit-banner').classList.remove('show');
+  document.getElementById('save-btn-label').textContent = 'Guardar partido';
+  document.getElementById('delete-btn').style.display = 'none';
+}
+
+function deleteMatch() {
+  if (_editingId === null) return;
+  const m = allMatches.find(x => x.id === _editingId);
+  if (!m) return;
+  if (!confirm(`¿Eliminar el partido del ${m.date} contra ${m.players.r1}?\n\nEsta acción no se puede deshacer.`)) return;
+  allMatches = allMatches.filter(x => x.id !== _editingId);
+  saveMatches(allMatches);
+  _editingId = null;
+  resetMatchForm();
+  applyFilters();
+  populateStatsFilter();
+  renderPlayers();
+  switchTab('history');
+  showToast('Partido eliminado ✓');
+}
+
 function saveMatch() {
   const err  = document.getElementById('f-err');
   const mode = gv('n-mode');
@@ -1243,23 +1364,37 @@ function saveMatch() {
   const s3t = gn('s3-t'), s3r = gn('s3-r');
   if (s3t !== null && s3r !== null) sets.push({ t: s3t, r: s3r, tb: gn('s3-tb') });
   err.textContent = '';
-  const match = {
-    id: Date.now(), date, place, mode,
+
+  const datos = {
+    date, place, mode,
     players: { t1, t2: isD ? t2 : '', r1, r2: isD ? r2 : '' },
-    sets, winner: determineWinner(sets),
-    addedBy: currentUser.username, addedByName: currentUser.name
+    sets, winner: determineWinner(sets)
   };
-  allMatches.unshift(match);
+
+  const eraEdicion = _editingId !== null;
+
+  if (eraEdicion) {
+    /* EDICIÓN: actualizo el partido existente conservando id y autoría */
+    const i = allMatches.findIndex(x => x.id === _editingId);
+    if (i === -1) { err.textContent = 'No se encontró el partido'; return; }
+    allMatches[i] = { ...allMatches[i], ...datos };
+    /* si cambió la fecha, reordeno por fecha descendente */
+    allMatches.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    _editingId = null;
+  } else {
+    allMatches.unshift({
+      id: Date.now(), ...datos,
+      addedBy: currentUser.username, addedByName: currentUser.name
+    });
+  }
+
   saveMatches(allMatches);
-  ['s1-t','s1-r','s1-tb','s2-t','s2-r','s2-tb','s3-t','s3-r','s3-tb','n-place','p-r1','p-r2']
-    .forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('n-date').valueAsDate = new Date();
-  document.getElementById('p-t1').value = currentUser.name;
+  resetMatchForm();
   applyFilters();
   populateStatsFilter();
   renderPlayers();
   switchTab('history');
-  showToast('Partido guardado ✓');
+  showToast(eraEdicion ? 'Partido actualizado ✓' : 'Partido guardado ✓');
 }
 
 /* ============================================================
@@ -1358,6 +1493,9 @@ function renderHistory() {
         <span class="badge badge-${m.mode}">${m.mode === 'doubles' ? 'Dobles' : 'Singles'}</span>
         <span class="badge badge-${res === 'W' ? 'win' : 'loss'}">${res === 'W' ? 'Victoria' : 'Derrota'}</span>
         <span style="font-size:10px;color:var(--stone);margin-left:auto">por ${esc(m.addedByName)}</span>
+        <button class="btn sm icon card-edit" title="Editar partido" onclick="editMatch(${m.id})">
+          <i class="ti ti-pencil"></i>
+        </button>
       </div>
       <div class="match-card-body">${renderScoreboard(m)}</div>
     </div>`;
