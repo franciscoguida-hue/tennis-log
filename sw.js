@@ -2,7 +2,7 @@
    Tennis Log — Service Worker (Network First)
    Cache name: increment version to force update on all clients
 ============================================================ */
-const CACHE_NAME = 'tennis-log-rg-v4';
+const CACHE_NAME = 'tennis-log-rg-v5';
 const PRECACHE   = [
   '/tennis-log/',
   '/tennis-log/index.html',

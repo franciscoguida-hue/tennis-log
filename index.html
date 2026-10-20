@@ -37,6 +37,7 @@
       --shadow:       0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.05);
       --shadow-md:    0 2px 8px rgba(0,0,0,0.10), 0 4px 20px rgba(0,0,0,0.08);
       --on-dark:      #FFFFFF;   /* texto sobre verde oscuro: constante en ambos temas */
+      --win:          #063024;   /* verde de "victoria": TEXTO y barras, no fondos */
       --surface:      #FFFFFF;   /* fondo de tarjetas */
       --surface-alt:  #FAF7F1;   /* filas alternadas, inputs */
     }
@@ -60,12 +61,13 @@
       --charcoal:     #F0EDE4;
       --text:         #F0EDE4;
       --text-muted:   #B2AFA2;
-      --text-hint:    #7D7B6E;
+      --text-hint:    #8A8878;
       --border:       rgba(255,255,255,0.10);
       --border-md:    rgba(255,255,255,0.20);
       --shadow:       0 1px 3px rgba(0,0,0,0.40), 0 2px 8px rgba(0,0,0,0.30);
       --shadow-md:    0 2px 8px rgba(0,0,0,0.50), 0 4px 20px rgba(0,0,0,0.40);
       --on-dark:      #FFFFFF;
+      --win:          #5FB894;   /* aclarado para que se lea sobre fondo oscuro */
       --surface:      #1F201A;
       --surface-alt:  #25261F;
     }
@@ -466,12 +468,12 @@
     }
     .bd-bar > div {
       height: 100%;
-      background: var(--green);
+      background: var(--win);
       border-radius: 3px;
     }
     .bd-num { text-align: right; flex-shrink: 0; }
     .bd-wl { font-size: 12px; color: var(--text-muted); }
-    .bd-wl b { color: var(--green); font-size: 13px; }
+    .bd-wl b { color: var(--win); font-size: 13px; }
     .bd-pct {
       font-size: 9px;
       color: var(--text-hint);
@@ -812,7 +814,7 @@
     .stat-num { font-size: 38px; font-weight: 700; line-height: 1.1; }
     .stat-lbl { font-size: 9px; color: var(--stone); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
     .wl-bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; margin: 10px 0 6px; }
-    .wl-bar .w { background: var(--green); }
+    .wl-bar .w { background: var(--win); }
     .wl-bar .l { background: var(--orange); }
     .rival-row {
       display: flex;
@@ -1895,7 +1897,7 @@ function winRateChart(matches, playerName) {
   /* un punto por partido, verde si ganó y naranja si perdió */
   const dots = pts.map((p, i) =>
     `<circle cx="${px(i).toFixed(1)}" cy="${py(p.y).toFixed(1)}" r="2"
-             fill="${p.res === 'W' ? 'var(--green)' : 'var(--orange)'}"
+             fill="${p.res === 'W' ? 'var(--win)' : 'var(--orange)'}"
              stroke="var(--surface)" stroke-width="0.8"><title>${p.date} · ${p.y}%</title></circle>`
   ).join('');
 
@@ -1970,7 +1972,7 @@ function loadStats() {
   const pct    = myMatches.length > 0 ? Math.round(wins / myMatches.length * 100) : 0;
   document.getElementById('stat-summary').innerHTML = `
     <div class="stat-card">
-      <div class="stat-num" style="color:var(--green)">${wins}</div>
+      <div class="stat-num" style="color:var(--win)">${wins}</div>
       <div class="stat-lbl">Victorias</div>
     </div>
     <div class="stat-card">
@@ -1995,7 +1997,7 @@ function loadStats() {
   const st = calcStreaks(myMatches, playerName);
   const actualTxt = st.tipo === null ? '—'
     : `${st.actual} ${st.tipo === 'W' ? (st.actual === 1 ? 'victoria' : 'victorias') : (st.actual === 1 ? 'derrota' : 'derrotas')}`;
-  const actualColor = st.tipo === 'W' ? 'var(--green)' : st.tipo === 'L' ? 'var(--orange)' : 'var(--stone)';
+  const actualColor = st.tipo === 'W' ? 'var(--win)' : st.tipo === 'L' ? 'var(--orange)' : 'var(--stone)';
   document.getElementById('streak-summary').innerHTML = `
     <div class="streak-card">
       <div class="streak-icon" style="color:${actualColor}">
@@ -2007,9 +2009,9 @@ function loadStats() {
       </div>
     </div>
     <div class="streak-card">
-      <div class="streak-icon" style="color:var(--green)"><i class="ti ti-trophy"></i></div>
+      <div class="streak-icon" style="color:var(--win)"><i class="ti ti-trophy"></i></div>
       <div>
-        <div class="streak-num" style="color:var(--green)">${st.mejorW}</div>
+        <div class="streak-num" style="color:var(--win)">${st.mejorW}</div>
         <div class="streak-lbl">Mejor racha ganando</div>
       </div>
     </div>
@@ -2033,7 +2035,7 @@ function loadStats() {
   /* ── POR CLUB ── */
   const porClub = breakdownBy(myMatches, playerName, m => (m.place || '').trim());
   document.getElementById('place-list').innerHTML =
-    renderBreakdown(porClub, k => k || 'Sin especificar', () => 'var(--green)') ||
+    renderBreakdown(porClub, k => k || 'Sin especificar', () => 'var(--win)') ||
     '<div class="empty" style="padding:1.25rem"><p>Sin partidos</p></div>';
 
   const rivalMap = {};
@@ -2065,7 +2067,7 @@ function loadStats() {
       </div>
       <div style="text-align:right">
         <div class="rival-wl">
-          <span style="color:var(--green)">${r.w}V</span>
+          <span style="color:var(--win)">${r.w}V</span>
           <span style="color:var(--stone);font-weight:400"> / </span>
           <span style="color:var(--orange)">${r.l}D</span>
         </div>
